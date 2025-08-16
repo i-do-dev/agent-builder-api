@@ -1,6 +1,6 @@
 # agent-builder-api
 
-AI Agent Builder API Project using FastAPI
+AI Agent Builder API
 
 # Application Purpose
 
