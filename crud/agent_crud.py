@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
 import models
 from uuid import UUID
-from schemas.agent_schemas import AgentCreateRequest
 from schemas import agent_schemas
 from db_neo4j import add_agent, add_user_agent_relationship
 
