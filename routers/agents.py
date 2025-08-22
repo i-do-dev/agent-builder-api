@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db
+from db_postgres import get_db
 from dependencies import get_current_user
 import models
 from schemas import agent_schemas
 from crud import agent_crud as crud
+from schemas import topic_schemas
 
 router = APIRouter()
 
@@ -34,7 +35,7 @@ def get_agent_by_id(
         raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
     return agent
 
-@router.get("/agents/{agent_id}/topics", response_model=list[agent_schemas.TopicResponse])
+@router.get("/agents/{agent_id}/topics", response_model=list[topic_schemas.TopicResponse])
 def get_agent_topics(
     agent_id: str,
     db: Session = Depends(get_db),
