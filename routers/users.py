@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-from database import get_db
+from db_postgres import get_db
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from schemas import user_schemas
@@ -57,9 +57,6 @@ def login_user(user_credentials: user_schemas.UserLogin, db: Session = Depends(g
         "first_name": user.first_name,
         "last_name": user.last_name
     }
-
-
-
 
 # === Protected routes ===
 @router.get("/users/", response_model=list[user_schemas.UserResponse])
