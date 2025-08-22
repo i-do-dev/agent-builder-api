@@ -6,9 +6,11 @@ from passlib.context import CryptContext
 from schemas.user_schemas import UserCreateRequest
 from schemas import user_schemas
 from crud.agent_crud import create_agent
+from db_neo4j import add_user
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# User CRUD Operations
 def create_user(db: Session, user: user_schemas.UserCreateRequest):
     if user.password != user.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
@@ -23,6 +25,16 @@ def create_user(db: Session, user: user_schemas.UserCreateRequest):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+            
+    # This function comes from db_neo4j.py
+    add_user( 
+        user_id=str(db_user.id),
+        first_name=db_user.first_name,
+        last_name=db_user.last_name,
+        email=db_user.email,
+        password=hashed_password,
+        user_type="user"
+    )        
     
     if user.agents:
         for agent_data in user.agents:
