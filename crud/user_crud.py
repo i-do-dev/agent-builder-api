@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session, joinedload
 import models
 from uuid import UUID
 from passlib.context import CryptContext
-from schemas.user_schemas import UserCreateRequest
 from schemas import user_schemas
 from crud.agent_crud import create_agent
 from db_neo4j import add_user
@@ -26,7 +25,7 @@ def create_user(db: Session, user: user_schemas.UserCreateRequest):
     db.commit()
     db.refresh(db_user)
             
-    # This function comes from db_neo4j.py
+    # ✅ Sync to Neo4j after successful insert into Postgres
     add_user( 
         user_id=str(db_user.id),
         first_name=db_user.first_name,
