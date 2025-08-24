@@ -3,6 +3,7 @@ import models
 from database import engine
 from routers import agents, topics, topic_instructions, users
 from fastapi.middleware.cors import CORSMiddleware
+from routers.graph_router import router as graph_router
 
 # Ensure all tables are created in the database
 models.Base.metadata.create_all(bind=engine)
@@ -29,6 +30,9 @@ app.include_router(topics.router, prefix="/api", tags=["topics"])
 
 # Include the topic instructions router with a prefix and tags for better API documentation
 app.include_router(topic_instructions.router, prefix="/api", tags=["topic_instructions"])
+
+# Include the graph router for handling graph-related operations
+app.include_router(graph_router, prefix="/api", tags=["graph"])
 
 # Root endpoint to verify the application is running
 @app.get("/")

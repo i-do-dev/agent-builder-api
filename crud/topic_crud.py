@@ -2,12 +2,9 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 import models
 from uuid import UUID
-from schemas.topic_schemas import TopicCreateRequest
 from schemas import topic_schemas
-from schemas.topic_schemas import TopicResponse
-from schemas.agent_schemas import AgentResponse  # Ensure this import is correct
-from schemas.topic_schemas import TopicInstructionResponse  # Import the missing class
-
+from schemas import agent_schemas
+from db_neo4j import add_topic, add_agent_topic_relationship
 
 # Topic CRUD Operations
 def create_topic(db: Session, topic: topic_schemas.TopicCreateRequest):
@@ -20,6 +17,20 @@ def create_topic(db: Session, topic: topic_schemas.TopicCreateRequest):
         db.add(db_topic)
         db.commit()
         db.refresh(db_topic)
+
+        # ✅ Sync to Neo4j after successful insert into Postgres
+        add_topic(
+            topic_id=str(db_topic.id),
+            label=db_topic.label,
+            classification_description=db_topic.classification_description,
+            scope=db_topic.scope
+        )
+        # 🟢 NEW: link this topic to its agent in Neo4j
+        add_agent_topic_relationship(
+            agent_id=str(db_topic.agent.id),
+            topic_id=str(db_topic.id)
+        )
+        
         return db_topic
     except Exception as e:
         db.rollback()
@@ -29,22 +40,21 @@ def get_topics(db: Session):
     topics = db.query(models.Topic).options(
         joinedload(models.Topic.topic_instructions)
     ).all()
-    return [TopicResponse.model_validate(topic, from_attributes=True) for topic in topics]  # Convert to Pydantic
+    return [topic_schemas.TopicResponse.model_validate(topic, from_attributes=True) for topic in topics]
 
 def get_topic(db, topic_id):
     topic = db.query(models.Topic).filter(models.Topic.id == topic_id).first()
     if not topic:
         return None
     
-    return TopicResponse(
+    return topic_schemas.TopicResponse(
         id=topic.id,
         label=topic.label,
         classification_description=topic.classification_description,
         scope=topic.scope,
-        agent=AgentResponse.model_validate(topic.agent),
-        topic_instructions=[TopicInstructionResponse.model_validate(ti) for ti in topic.topic_instructions]
+        agent=agent_schemas.AgentResponse.model_validate(topic.agent),
+        topic_instructions=[topic_schemas.TopicInstructionResponse.model_validate(ti) for ti in topic.topic_instructions]
     )
-
 
 def update_topic(db: Session, topic_id: UUID, topic: topic_schemas.TopicCreateRequest):
     db_topic = db.query(models.Topic).filter(models.Topic.id == topic_id).first()

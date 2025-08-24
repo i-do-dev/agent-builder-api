@@ -11,17 +11,13 @@ SQLALCHEMY_DATABASE_URL = (
 
 # Create the database engine
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-# Create a session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Base class for declarative models
 Base = declarative_base()
 
 # Dependency to get a database session
 def get_db():
     db = SessionLocal()
     try:
-        yield db  # Provide the database session to the caller
+        yield db
     finally:
-        db.close()  # Ensure the session is closed after use
+        db.close()
