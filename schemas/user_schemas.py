@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
 from typing import List, Optional
-# from agent_schemas import AgentResponse, AgentCreateRequest
 from schemas.agent_schemas import AgentResponse, AgentCreateRequest
 
 # User Schemas
@@ -34,6 +33,4 @@ class TokenResponse(BaseModel):
     first_name: Optional[str]
     last_name: Optional[str]
 
-
-# Rebuild models to resolve forward references
 UserResponse.model_rebuild()
