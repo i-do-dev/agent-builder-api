@@ -23,5 +23,5 @@ COPY . .
 # Expose FastAPI default port
 EXPOSE 8000
 
-# Start FastAPI app with uvicorn
-CMD ["/venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Start FastAPI app with uvicorn in development mode (auto-reload)
+CMD ["/venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--workers", "1"]
