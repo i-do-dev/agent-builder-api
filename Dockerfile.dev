@@ -12,10 +12,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements file
 COPY requirements.txt .
 
-# Install Python dependencies
+# Install Python dependencies and FastAPI CLI
 RUN python -m venv /venv && \
     /venv/bin/pip install --upgrade pip && \
-    /venv/bin/pip install --no-cache-dir -r requirements.txt
+    /venv/bin/pip install --no-cache-dir -r requirements.txt && \
+    /venv/bin/pip install fastapi[standard]
 
 # Copy application code
 COPY . .
@@ -23,5 +24,5 @@ COPY . .
 # Expose FastAPI default port
 EXPOSE 8000
 
-# Start FastAPI app with uvicorn in development mode (auto-reload)
-CMD ["/venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--workers", "1"]
+# Start FastAPI app with FastAPI CLI for development
+CMD ["/venv/bin/fastapi", "dev", "main.py"]
