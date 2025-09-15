@@ -2,7 +2,7 @@ import uuid
 from sqlalchemy import Column, String, Text, ForeignKey, TIMESTAMP, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import UUID as PG_UUID
-from database import Base
+from db_postgres import Base
 from sqlalchemy.orm import relationship
 
 class User(Base):
