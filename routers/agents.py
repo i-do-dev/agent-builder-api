@@ -22,6 +22,10 @@ def get_agents(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
+    agents = crud.get_agents(db)
+    # Populate creator information if not already done
+    for agent in agents:
+        agent.creator_name = f"{agent.user.first_name} {agent.user.last_name}"   
     return crud.get_agents(db)
 
 @router.get("/agents/{agent_id}", response_model=agent_schemas.AgentResponse)
