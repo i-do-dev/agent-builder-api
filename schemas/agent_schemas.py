@@ -26,7 +26,10 @@ class AgentResponse(AgentBase):
     user_id: UUID
     modified_by: Optional[UUID] = None
     topics: List[TopicResponse] = []
-
+    
+    # New field to include creator's name
+    creator_name: Optional[str] = None
+    
     class Config:
         from_attributes = True
 
