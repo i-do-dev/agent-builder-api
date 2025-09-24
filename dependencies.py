@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
-import models, database
+import models, db_postgres
 import os
 
 # Secret key & algorithm (make sure SECRET_KEY matches what's used in users.py)
@@ -30,6 +30,6 @@ def authenticate_user(token: str, db: Session):
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(db_postgres.get_db)
 ) -> models.User:
     return authenticate_user(token, db)

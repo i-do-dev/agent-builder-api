@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import models
-from database import engine
+from db_postgres import engine
 from routers import agents, topics, topic_instructions, users
 from fastapi.middleware.cors import CORSMiddleware
 from routers.graph_router import router as graph_router

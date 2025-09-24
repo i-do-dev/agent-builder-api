@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    app_name: str = "Agent Builder API"
     # PostgreSQL
     database_username: str    
     database_password: str 
