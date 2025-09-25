@@ -1,15 +1,14 @@
 import asyncio
 from logging.config import fileConfig
-
 # from sqlalchemy import engine_from_config
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy import Connection
 from sqlalchemy import pool
-
 from alembic import context
-
 from api.data.base import Base
+from api.data import models  # Ensure all models are imported for Alembic to detect them
 from api.settings import Settings
+from dotenv import load_dotenv
 
 class Migration:
     def __init__(self, config=None, settings=None):        
@@ -97,6 +96,7 @@ class Migration:
 
 # Instantiate the Migration class
 if hasattr(context, "config") and context.config is not None:    
+    load_dotenv()  # Load environment variables from .env file
     migration = Migration(context.config)
     # Determine if we are in offline or online mode and run the appropriate migration method
     if context.is_offline_mode():
