@@ -94,12 +94,17 @@ class Migration:
         
         await connectable.dispose()
 
-# Instantiate the Migration class
-if hasattr(context, "config") and context.config is not None:    
-    load_dotenv()  # Load environment variables from .env file
-    migration = Migration(context.config)
-    # Determine if we are in offline or online mode and run the appropriate migration method
-    if context.is_offline_mode():
-        migration.run_migrations_offline()
-    else:
-        asyncio.run(migration.run_migrations_online())
+    @staticmethod
+    def run():
+        # Instantiate the Migration class
+        if hasattr(context, "config") and context.config is not None:    
+            load_dotenv()  # Load environment variables from .env file
+            migration = Migration(context.config)
+            # Determine if we are in offline or online mode and run the appropriate migration method
+            if context.is_offline_mode():
+                migration.run_migrations_offline()
+            else:
+                asyncio.run(migration.run_migrations_online())
+
+# Run the migration    
+Migration.run()
