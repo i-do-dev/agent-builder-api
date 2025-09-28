@@ -6,7 +6,7 @@ import uuid
 
 T = TypeVar("T")
 
-class Repository(Protocol, Generic[T]):
+class RepositoryType(Protocol, Generic[T]):
     """ Interface for a generic repository pattern. """
     async def get(self, id: uuid.UUID) -> Optional[T]: ...
     async def add(self, obj: T) -> T: ...
@@ -18,7 +18,7 @@ class Repository(Protocol, Generic[T]):
     async def get_by(self, **filters: Any) -> Optional[T]: ...
 
 
-class SQLAlchemyRepository(Generic[T]):
+class Repository(Generic[T]):
     model: type[T]
 
     def __init__(self, session: AsyncSession):
