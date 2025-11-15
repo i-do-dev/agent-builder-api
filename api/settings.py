@@ -1,8 +1,10 @@
 from pydantic import AnyUrl, field_validator
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from api.constants import NEO4J_ALLOWED_SCHEMES, NEO4J_INVALID_SCHEME_ERROR
 
 class Settings(BaseSettings):
+    app_version: str
+    env_name: str
     app_name: str
     database_username: str
     database_password: str
@@ -13,6 +15,11 @@ class Settings(BaseSettings):
     neo4j_username: str
     neo4j_password: str
 
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8"
+    )
+    
     @field_validator("neo4j_uri")
     @classmethod
     def validate_neo4j_scheme(cls, v):

@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
-from api.data.session import async_session
-from api.data.repositories.user import UserRepository
+from api.db.session import async_session
+from api.db.repositories.user import UserRepository
 
 class UnitOfWork:
     def __init__(self, session: AsyncSession):

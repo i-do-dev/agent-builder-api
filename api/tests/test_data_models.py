@@ -1,4 +1,4 @@
-from api.data.models import Agent, Topic, TopicInstructions, User
+from api.db.models import Agent, Topic, TopicInstructions, User
 
 def test_user_model():
     user = User(

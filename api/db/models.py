@@ -2,11 +2,12 @@ import uuid
 from sqlalchemy import Column, String, Text, ForeignKey, TIMESTAMP, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import UUID
-from api.data.base import Base
+from api.db.base import Base
 
 class User(Base):
     __tablename__ = "users"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    username = Column(String, nullable=False, unique=True, index=True)
     email = Column(String, nullable=False, unique=True, index=True)
     password = Column(String, nullable=False)  # Hashed password stored
     first_name = Column(String, nullable=True)

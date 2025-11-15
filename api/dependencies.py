@@ -1,4 +1,4 @@
-from api.data.uow import UnitOfWork, uow_context
+from api.db.uow import UnitOfWork, uow_context
 from typing import AsyncGenerator
 
 # Unit of Work dependency to perform DB operations within a transaction

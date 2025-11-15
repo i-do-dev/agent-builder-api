@@ -1,6 +1,6 @@
 from typing import Optional
-from api.data.repositories.base import Repository
-from api.data.models import User
+from api.db.repositories.base import Repository
+from api.db.models import User
 
 class UserRepository(Repository[User]):
     """Repository for User model."""
