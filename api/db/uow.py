@@ -7,7 +7,7 @@ class UnitOfWork:
     def __init__(self, session: AsyncSession):
         self.session = session
         # expose repos
-        self.users = UserRepository(session)
+        self.user = UserRepository(session)
         # self.agents = AgentRepository(session)
         # self.topics = TopicRepository(session) ...
         # self.actions = ActionRepository(session) ...

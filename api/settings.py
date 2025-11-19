@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from api.constants import NEO4J_ALLOWED_SCHEMES, NEO4J_INVALID_SCHEME_ERROR
 
 class Settings(BaseSettings):
+    secret_key: str
     app_version: str
     env_name: str
     app_name: str
