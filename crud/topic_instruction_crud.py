@@ -11,19 +11,19 @@ def create_instruction(db: Session, instruction: topic_instruction_schemas.Topic
     db.commit()
     db.refresh(db_instruction)
 
-    # ✅ Sync to Neo4j after successful insert into Postgres
+    # Sync to Neo4j after successful insert into Postgres
     add_topic_instruction(
         topic_id=str(db_instruction.topic_id),
         instruction_id=str(db_instruction.id),
         instruction_text=db_instruction.instruction
     )
 
-    # 🟢 NEW: link this topic to its agent in Neo4j
+    # NEW: link this topic to its agent in Neo4j
     add_topic_topic_instruction_relationship(
         topic_id=str(db_instruction.topic_id),
         instruction_id=str(db_instruction.id)
     )
-    
+
     return db_instruction
 
 def get_instructions(db: Session):

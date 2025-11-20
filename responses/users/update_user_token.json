@@ -1,0 +1,7 @@
+{
+    "access_token": "Updated JWT Token",
+    "token_type": "bearer",
+    "first_name": "user first_name",
+    "last_name": "user last_name",
+    "user_id": "uuid"
+}

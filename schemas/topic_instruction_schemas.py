@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from uuid import UUID
 
-# Topic Instruction Schemas
 class TopicInstructionBase(BaseModel):
     instruction: str
 

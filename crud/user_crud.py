@@ -25,7 +25,7 @@ def create_user(db: Session, user: user_schemas.UserCreateRequest):
     db.commit()
     db.refresh(db_user)
             
-    # ✅ Sync to Neo4j after successful insert into Postgres
+    # Sync to Neo4j after successful insert into Postgres
     add_user( 
         user_id=str(db_user.id),
         first_name=db_user.first_name,
@@ -41,6 +41,54 @@ def create_user(db: Session, user: user_schemas.UserCreateRequest):
             create_agent(db, agent_data, db_user.id)
      
     return db_user
+
+"""
+    Update User Token
+    Update the user access_token in the db w.r.t. to the specified userId. 
+    @urlParam db required for session 
+    @urlParam user_id required The id of a users Example: uuid
+    @urlParam token required The acceess_token of a user Example: JWT Token 
+    @responseFile responses/users/update_user_token.json
+    @response 400 {
+    "errors": [
+        "User not found."
+      ]
+     }
+    @param db mix
+    @param user_id str
+    @param token str
+    @return user JSON object
+"""
+def update_user_token(db: Session, user_id: str, token: str):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.access_token = token
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+"""
+    Get User Token
+    Get the user access_token from the db w.r.t. the userId.
+    @urlParam user_id required The id of a users Example: uuid
+    @urlParam db required for session
+    @responseFile responses/users/get_user_token.json
+    @response 400 {
+    "errors": [
+        "User not found."
+      ]
+     }
+    @param user_data dict
+    @param db mix
+    @return string access_token
+"""
+def get_user_token(db: Session, user_id: str):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user.access_token
 
 def get_users(db: Session):
     return db.query(models.User).options(joinedload(models.User.agents)).all()

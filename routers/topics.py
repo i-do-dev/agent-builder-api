@@ -6,8 +6,18 @@ import models
 from dependencies import get_current_user
 from schemas import topic_schemas
 
-router = APIRouter()
+router = APIRouter()    
 
+"""
+Create Topic
+API endpoint to create a new topic in the system.
+Validates user authentication and creates topic in both PostgreSQL and Neo4j databases.
+@responseFile responses/topics/create_topic.json
+@param topic TopicCreateRequest The topic creation request containing topic details
+@param db Session Database session dependency for PostgreSQL operations
+@param current_user User Currently authenticated user from token validation
+@return Topic The created topic object
+"""
 @router.post("/topics/", response_model=topic_schemas.TopicResponse)
 def create_topic(
     topic: topic_schemas.TopicCreateRequest,
@@ -50,11 +60,5 @@ def delete_topic(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    topic = db.query(models.Topic).options(joinedload(models.Topic.agent)).filter(models.Topic.id == topic_id).first()
-    if not topic:
-        raise HTTPException(status_code=404, detail="Topic not found")
-    if topic.agent.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to delete this topic")
-    db.delete(topic)
-    db.commit()
-    return {"message": "Topic deleted successfully"}
+    result = crud.delete_topic(db, topic_id)
+    return result

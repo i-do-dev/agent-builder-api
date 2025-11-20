@@ -1,0 +1,51 @@
+[
+    {
+        "name": "agent name",
+        "api_name": null,
+        "description": null,
+        "role": null,
+        "organization": null,
+        "user_type": null,
+        "topics": [
+            {
+                "label": "topic label",
+                "classification_description": null,
+                "scope": null,
+                "topic_instructions": [],
+                "id": "uuid",
+                "agent": {
+                    "id": "uuid",
+                    "name": "agent name",
+                    "user_id": "uuid"
+                }
+            }
+        ],
+        "id": "uuid",
+        "user_id": "uuid",
+        "creator_name": "creator_name"
+    },
+    {
+        "name": "agent name",
+        "api_name": "agent api_name",
+        "description": "agent description",
+        "role": "agent role",
+        "organization": "agent organization",
+        "user_type": "user_type",
+        "topics": [],
+        "id": "uuid",
+        "user_id": "uuid",
+        "creator_name": "creator_name"
+    },
+    {
+        "name": "agent name",
+        "api_name": "agent api_name",
+        "description": "agent description",
+        "role": "agent role",
+        "organization": "agent organization",
+        "user_type": "user_type",
+        "topics": [],
+        "id": "uuid",
+        "user_id": "uuid",
+        "creator_name": "creator_name"
+    }
+]

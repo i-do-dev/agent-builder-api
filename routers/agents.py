@@ -25,7 +25,7 @@ def get_agents(
     agents = crud.get_agents(db)
     # Populate creator information if not already done
     for agent in agents:
-        agent.creator_name = f"{agent.user.first_name} {agent.user.last_name}"   
+        agent.creator_name = f"{agent.user.first_name} {agent.user.last_name}"
     return crud.get_agents(db)
 
 @router.get("/agents/{agent_id}", response_model=agent_schemas.AgentResponse)
@@ -71,4 +71,5 @@ def delete_agent(
     if agent.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to delete this agent")
     crud.delete_agent(db, agent_id)
+    
     return {"message": "Agent deleted successfully"}

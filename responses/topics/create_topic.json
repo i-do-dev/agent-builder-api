@@ -1,0 +1,12 @@
+{
+    "label": "topic_label",
+    "classification_description": "topic_classification_description",
+    "scope": "topic_scope",
+    "topic_instructions": [],
+    "id": "uuid",
+    "agent": {
+        "id": "uuid",
+        "name": "agent_name",
+        "user_id": "uuid"
+    }
+}

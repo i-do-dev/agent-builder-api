@@ -1,0 +1,11 @@
+{
+  "json": {
+    "id": "test-flow-1",
+    "type": "graph",
+    "children": [
+      { "id": "n1", "type": "task:automated", "name": "Start", "position": {"x": 50, "y": 50}, "size": {"width": 120, "height": 60} },
+      { "id": "n2", "type": "decisionnode", "name": "Decide", "position": {"x": 250, "y": 50} },
+      { "id": "e1", "type": "edge", "sourceId": "n1", "targetId": "n2" }
+    ]
+  }
+}

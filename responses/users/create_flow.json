@@ -1,0 +1,9 @@
+{
+    "message": "Flow created successfully",
+    "user_id": "uuid",
+    "agent_id": "uuid",
+    "topic_id": "uuid",
+    "agent_name": "agent_name",
+    "topic_label": "topic_label",
+    "agent_created": true
+}

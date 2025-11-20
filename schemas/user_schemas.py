@@ -4,11 +4,11 @@ from datetime import datetime
 from typing import List, Optional
 from schemas.agent_schemas import AgentResponse, AgentCreateRequest
 
-# User Schemas
 class UserBase(BaseModel):
     email: str
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    access_token: Optional[str] = None
 
 class UserCreateRequest(UserBase):
     password: str
@@ -32,5 +32,9 @@ class TokenResponse(BaseModel):
     token_type: str
     first_name: Optional[str]
     last_name: Optional[str]
+    user_id: Optional[str]
+
+    class Config:
+        from_attributes = True
 
 UserResponse.model_rebuild()

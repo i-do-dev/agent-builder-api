@@ -1,0 +1,12 @@
+{
+    "name": "agent name",
+    "api_name": "agent api_name",
+    "description": "agent description",
+    "role": "agent role",
+    "organization": "agent organization",
+    "user_type": "user_type",
+    "topics": [],
+    "id": "uuid",
+    "user_id": "uuid",
+    "creator_name": "creator_name"
+}
