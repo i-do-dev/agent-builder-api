@@ -15,9 +15,9 @@ class AuthService:
         self.token_svc = token_svc
         self.password_svc = password_svc
         
-    async def authenticate_user(self, username: str, password: str) -> Optional[UserAuth]:
+    async def authenticate_user(self, username_or_email: str, password: str) -> Optional[UserAuth]:
         """Authenticate a user with username and password."""
-        user = await self.user_svc.get_user(username)
+        user = await self.user_svc.get_user(username_or_email)
         if not user:
             return None
         if not self.password_svc.verify_password(password, user.password):
@@ -65,7 +65,7 @@ class AuthService:
     async def get_user(self, token: str) -> UserProfile:
         """Get current user from JWT token."""
         username = self.token_svc.verify_token(token)
-        user = await self.user_svc.get_user(username)
+        user = await self.user_svc.get_by_username(username)
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

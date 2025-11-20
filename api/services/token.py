@@ -3,6 +3,7 @@ from typing import Optional
 import jwt
 from jwt.exceptions import InvalidTokenError
 from fastapi import HTTPException, status
+from api.schemas.auth import TokenPayload
 from api.settings import Settings
 
 class TokenService:
@@ -39,3 +40,20 @@ class TokenService:
             return username
         except InvalidTokenError:
             raise credentials_exception
+        
+    def decode(self, token: str) -> TokenPayload:
+        """Decode a JWT token without verification."""
+        try:
+            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm], options={"verify_exp": False})
+            print("*-*-*-*-*-*-*-*-*- Decoded payload SUB :", payload.get("sub"))
+            print("*-*-*-*-*-*-*-*-*- Decoded payload EXP:", payload.get("exp"))
+            return TokenPayload(
+                sub=payload.get("sub"),
+                exp=payload.get("exp")
+            )
+        except InvalidTokenError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not decode token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )

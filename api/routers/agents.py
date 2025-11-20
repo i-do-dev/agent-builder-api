@@ -1,22 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from db_postgres import get_db
-from dependencies import get_current_user
-import models
-from schemas import agent_schemas
-from crud import agent_crud as crud
-from schemas import topic_schemas
+from fastapi import APIRouter
+from api.dependencies.agent import Agent
+from api.dependencies.common import BearerToken, Token
+from api.schemas.agent import AgentCreateRequest, AgentResponse
+from api.schemas.auth import TokenPayload
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/agents",
+    tags=["agents"],
+)
 
-@router.post("/agents/", response_model=agent_schemas.AgentResponse)
-def create_agent(
-    agent: agent_schemas.AgentCreateRequest,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-    return crud.create_agent(db, agent, user_id=current_user.id)
+@router.post("/")
+async def create(
+        bearer_token: BearerToken, 
+        token: Token, 
+        agent: Agent, 
+        agent_req: AgentCreateRequest
+    ) -> AgentResponse:
+    token_payload: TokenPayload = token.decode(bearer_token)
+    return await agent.create_on_request(agent_req, token_payload.sub)
 
+""" 
 @router.get("/agents/", response_model=list[agent_schemas.AgentResponse])
 def get_agents(
     db: Session = Depends(get_db),
@@ -68,3 +71,4 @@ def delete_agent(
         raise HTTPException(status_code=403, detail="Not authorized to delete this agent")
     crud.delete_agent(db, agent_id)
     return {"message": "Agent deleted successfully"}
+ """

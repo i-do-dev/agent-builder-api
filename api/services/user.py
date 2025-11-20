@@ -24,6 +24,21 @@ class UserService:
                     created_at=user.created_at.isoformat()
                 )
         return None
+    
+    async def get_by_username(self, username: str) -> Optional[UserAuth]:
+        """Get a user by username."""
+        user = await self.db.user.get_by_username(username)
+        if user:
+            return UserAuth(
+                    id=user.id,
+                    username=user.username, 
+                    email=user.email, 
+                    password=user.password,
+                    first_name=user.first_name,
+                    last_name=user.last_name,
+                    created_at=user.created_at.isoformat()
+                )
+        return None
         
     async def exists(self, username: str, email: str) -> Exception | None:
         if await self.db.user.get_by_username(username):

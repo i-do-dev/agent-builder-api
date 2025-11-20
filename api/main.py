@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.settings import Settings
 from api.db.session import async_engine as engine
 from api.db import models
-from api.routers import auth
+from api.routers import agents, auth
 from contextlib import asynccontextmanager
 
 # Configure logging
@@ -53,6 +53,7 @@ app.add_middleware(
 
 # Include the auth router with a prefix and tags for better API documentation
 app.include_router(auth.router, tags=["auth"])
+app.include_router(agents.router, tags=["agents"])
 
 # Root endpoint to verify the application is running.
 @app.get("/")
