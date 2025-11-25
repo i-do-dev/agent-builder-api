@@ -10,6 +10,6 @@ class PasswordService:
         """Verify a plain password against a hashed password."""
         return self.password_hash.verify(plain_password, hashed_password)
     
-    def get_password_hash(self, password: str) -> str:
+    def hash_password(self, password: str) -> str:
         """Hash a plain password."""
         return self.password_hash.hash(password)

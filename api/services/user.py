@@ -1,7 +1,7 @@
 from typing import Optional
 from api.constants import EMAIL_ALREADY_REGISTERED_ERROR, USER_ALREADY_REGISTERED_ERROR
 from api.db.models import User
-from api.schemas.auth import UserAuth, UserProfile
+from api.schemas.auth import UserAuth, UserData, UserDataWithPassword, UserProfile
 from api.dependencies.db import Db
 
 class UserService:
@@ -47,12 +47,12 @@ class UserService:
             return ValueError(EMAIL_ALREADY_REGISTERED_ERROR)
         return None
     
-    async def create_user(self, user: dict) -> UserProfile:
+    async def create_user(self, user_data: UserDataWithPassword) -> UserProfile:
         """Create a new user if username or email does not exist."""
-        if exits := await self.exists(user["username"], user["email"]):
+        if exits := await self.exists(user_data.username, user_data.email):
             raise exits        
         try:
-            user_model = User(**user)
+            user_model = User(**user_data.model_dump())
             new_user = await self.db.user.add(user_model)
             return UserProfile(
                 id=str(new_user.id),

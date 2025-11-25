@@ -2,7 +2,10 @@ from datetime import timedelta
 from typing import Optional
 from fastapi import HTTPException, status
 from api.constants import PASSWORDS_DO_NOT_MATCH_ERROR
-from api.schemas.auth import Token, UserAuth, UserProfile, UserSignUpRequest
+from api.contracts.token import Token
+from api.contracts.user import UserAuth, UserDataWithPassword, UserProfile
+from api.contracts.requests.user import UserSignUpRequest
+from api.mappers.user import UserMapper
 from api.services.password import PasswordService
 from api.services.user import UserService
 from api.services.token import TokenService
@@ -39,22 +42,26 @@ class AuthService:
         )
         return Token(access_token=access_token, token_type="bearer")
     
-    def compare_passwords(self, password: str, confirm_password: str) -> bool:
+    def _password_match(self, password: str, confirm_password: str) -> bool:
         """Compare password and confirm password."""
         return password == confirm_password
     
-    async def register(self, form_data: UserSignUpRequest) -> UserProfile:
+    async def register(self, request: UserSignUpRequest) -> UserProfile:
         """Register a new user."""
-        if not self.compare_passwords(form_data.password, form_data.confirm_password):
+        if not self._password_match(request.password, request.confirm_password):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=PASSWORDS_DO_NOT_MATCH_ERROR
             )
 
         try:
-            user_dict = form_data.model_dump(exclude={"password","confirm_password"})
-            user_dict["password"] = self.password_svc.get_password_hash(form_data.password)
-            user = await self.user_svc.create_user(user_dict)
+
+            hashed_password = self.password_svc.hash_password(request.password)
+            user_entity = UserMapper.signup_request_to_entity(request, hashed_password)
+
+            user_data: UserDataWithPassword = request.model_dump(exclude={"confirm_password"})
+            user_data.password = self.password_svc.hash_password(request.password)
+            user = await self.user_svc.create_user(user_data)
             return user
         except Exception as e:
             raise HTTPException(

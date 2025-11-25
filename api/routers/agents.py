@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from api.dependencies.agent import Agent
-from api.dependencies.common import BearerToken, Token
+from api.dependencies.common import BearerToken, TokenSvc
 from api.schemas.agent import AgentCreateRequest, AgentResponse
 from api.schemas.auth import TokenPayload
 
@@ -12,11 +12,11 @@ router = APIRouter(
 @router.post("/")
 async def create(
         bearer_token: BearerToken, 
-        token: Token, 
+        token_svc: TokenSvc, 
         agent: Agent, 
         agent_req: AgentCreateRequest
     ) -> AgentResponse:
-    token_payload: TokenPayload = token.decode(bearer_token)
+    token_payload: TokenPayload = token_svc.decode(bearer_token)
     return await agent.create_on_request(agent_req, token_payload.sub)
 
 """ 

@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.db.repositories.agent import AgentRepository
+from api.db.repositories.topic import TopicRepository
 from api.db.session import async_session
 from api.db.repositories.user import UserRepository
 
@@ -10,7 +11,7 @@ class UnitOfWork:
         # expose repos
         self.user = UserRepository(session)
         self.agent = AgentRepository(session)
-        # self.topic = TopicRepository(session) ...
+        self.topic = TopicRepository(session)
         # self.action = ActionRepository(session) ...
 
     async def commit(self): await self.session.commit()

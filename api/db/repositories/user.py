@@ -1,7 +1,6 @@
 from sqlalchemy import select, or_
+from sqlalchemy.orm import selectinload
 from typing import Optional
-
-from sqlalchemy import or_
 from api.db.repositories.base import Repository
 from api.db.models import User
 
@@ -23,5 +22,14 @@ class UserRepository(Repository[User]):
                 self.model.username == username_or_email, self.model.email == username_or_email                
             )
         )
+        result = await self.session.execute(statement)
+        return result.scalars().first()
+    
+    async def get_with_agents(self, user_id: str) -> Optional[User]:
+        """Get user with agents - matches model_to_entity_with_agents"""
+        statement = select(self.model).options(
+            selectinload(self.model.agents)
+        ).where(self.model.id == user_id)
+        
         result = await self.session.execute(statement)
         return result.scalars().first()

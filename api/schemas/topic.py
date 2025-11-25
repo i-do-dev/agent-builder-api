@@ -31,14 +31,14 @@ class TopicBase(BaseModel):
 
 class TopicCreateRequest(TopicBase):
     agent_id: Optional[UUID] = None
-    topic_instructions: Optional[List[str]] = []
+    instructions: Optional[List[str]] = []
 
 class TopicUpdateRequest(TopicBase):
     pass
 
 class TopicResponse(TopicBase):
     id: UUID
-    topic_instructions: List[TopicInstructionResponse] = []
+    instructions: List[TopicInstructionResponse] = []
     agent: Optional[AgentResponse] = None  # Include the agent relationship
 
 

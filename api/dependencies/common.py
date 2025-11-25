@@ -13,7 +13,7 @@ def get_settings() -> Settings:
 def get_token_service() -> TokenService:
     return TokenService(get_settings())
 
-Token = Annotated[TokenService, Depends(get_token_service)]
+TokenSvc = Annotated[TokenService, Depends(get_token_service)]
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 BearerToken = Annotated[str, Depends(oauth_scheme)]
 

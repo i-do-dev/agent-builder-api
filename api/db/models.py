@@ -1,10 +1,13 @@
+from typing import List
 import uuid
 from sqlalchemy import Column, String, Text, ForeignKey, TIMESTAMP, text
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 from sqlalchemy.types import UUID
 from api.db.base import Base
 
 class User(Base):
+    """SQLAlchemy User model"""
+
     __tablename__ = "users"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = Column(String, nullable=False, unique=True, index=True)
@@ -20,6 +23,8 @@ class User(Base):
     )
 
 class Agent(Base):
+    """SQLAlchemy Agent model"""
+
     __tablename__ = "agents"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
@@ -43,33 +48,37 @@ class Agent(Base):
     )  # Cascade deletes to topics
 
 class Topic(Base):
+    """SQLAlchemy Topic model"""
+
     __tablename__ = "topics"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     label = Column(String, nullable=False)
     classification_description = Column(Text, nullable=True)
     agent_id = Column(UUID(as_uuid=True), ForeignKey("agents.id"), nullable=False)
     # Relationship with Agent
-    agent = relationship(
+    agent: Mapped["Agent"] = relationship(
         "Agent",
         back_populates="topics",
         foreign_keys=[agent_id]  # Explicitly specify the foreign key
     )
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
-    topic_instructions = relationship(
-        "TopicInstructions",
+    instructions: Mapped[List["TopicInstruction"]] = relationship(
+        "TopicInstruction",
         back_populates="topic",
         cascade="all, delete-orphan"
     )  # Cascade deletes to topic instructions
 
-class TopicInstructions(Base):
-    __tablename__ = "topic_instructions"
+class TopicInstruction(Base):
+    """SQLAlchemy TopicInstruction model"""
+    
+    __tablename__ = "topic_instruction"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    instructions = Column(Text, nullable=False)
+    instruction = Column(Text, nullable=False)
     topic_id = Column(UUID(as_uuid=True), ForeignKey("topics.id"), nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
     # Relationship with Topic
     topic = relationship(
         "Topic", 
-        back_populates="topic_instructions",
+        back_populates="topic_instruction",
         foreign_keys=[topic_id]
     )
