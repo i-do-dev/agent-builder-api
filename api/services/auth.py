@@ -2,8 +2,9 @@ from datetime import timedelta
 from typing import Optional
 from fastapi import HTTPException, status
 from api.constants import PASSWORDS_DO_NOT_MATCH_ERROR
+from api.contracts.responses.user import UserSignUpResponse
 from api.contracts.token import Token
-from api.contracts.user import UserAuth, UserDataWithPassword, UserProfile
+from api.contracts.user import UserAuth, UserProfile
 from api.contracts.requests.user import UserSignUpRequest
 from api.mappers.user import UserMapper
 from api.services.password import PasswordService
@@ -46,7 +47,7 @@ class AuthService:
         """Compare password and confirm password."""
         return password == confirm_password
     
-    async def register(self, request: UserSignUpRequest) -> UserProfile:
+    async def register(self, request: UserSignUpRequest) -> UserSignUpResponse:
         """Register a new user."""
         if not self._password_match(request.password, request.confirm_password):
             raise HTTPException(
@@ -55,14 +56,10 @@ class AuthService:
             )
 
         try:
-
             hashed_password = self.password_svc.hash_password(request.password)
             user_entity = UserMapper.signup_request_to_entity(request, hashed_password)
-
-            user_data: UserDataWithPassword = request.model_dump(exclude={"confirm_password"})
-            user_data.password = self.password_svc.hash_password(request.password)
-            user = await self.user_svc.create_user(user_data)
-            return user
+            new_user_entity = await self.user_svc.create(user_entity)
+            return UserMapper.entity_to_signup_response(new_user_entity)
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

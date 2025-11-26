@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
-from api.contracts.responses.user import UserProfileResponse
+from api.contracts.responses.user import UserSignUpResponse
 from api.dependencies.auth import AuthSvc, AuthUserSvc
 from api.schemas.auth import Token, UserProfile
 from api.contracts.requests.user import UserSignUpRequest
@@ -18,13 +18,13 @@ async def token(
 ) -> Token:
     return await auth.login(form_data.username, form_data.password)
 
-@router.get("/me", response_model=UserProfileResponse)
+""" @router.get("/me", response_model=UserProfileResponse)
 async def me(auth_user: AuthUserSvc) -> UserProfileResponse:
-    return auth_user
+    return auth_user """
 
-@router.post("/register", response_model=UserProfileResponse)
+@router.post("/register", response_model=UserSignUpResponse)
 async def register(
     request: Annotated[UserSignUpRequest, Form()],
     auth_svc: AuthSvc
-) -> UserProfileResponse:
+) -> UserSignUpResponse:
     return await auth_svc.register(request)

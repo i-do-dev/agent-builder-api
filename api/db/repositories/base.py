@@ -2,36 +2,60 @@ from __future__ import annotations
 from typing import Generic, TypeVar, Protocol, Sequence, Optional, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, func
-import uuid
+from uuid import UUID
 
 T = TypeVar("T")
+M = TypeVar("M")
 
-class RepositoryType(Protocol, Generic[T]):
+class RepositoryType(Protocol, Generic[T, M]):
     """ Interface for a generic repository pattern. """
-    async def get(self, id: uuid.UUID) -> Optional[T]: ...
+    async def get_model(self, id: UUID) -> Optional[M]: ...
+    async def get(self, id: UUID) -> Optional[T]: ...
+    async def add_model(self, obj: M) -> M: ...
     async def add(self, obj: T) -> T: ...
     async def delete(self, obj: T) -> None: ...
     async def list(self, *, offset: int = 0, limit: int = 50, **filters: Any) -> Sequence[T]: ...
-    async def update(self, id: uuid.UUID, values: dict[str, Any]) -> Optional[T]: ...
+    async def update(self, id: UUID, values: dict[str, Any]) -> Optional[T]: ...
     async def update_where(self, values: dict[str, Any], **filters: Any) -> int: ...
     async def count(self, **filters: Any) -> int: ...
     async def get_by(self, **filters: Any) -> Optional[T]: ...
 
 
-class Repository(Generic[T]):
-    model: type[T]
+class Repository(Generic[T, M]):
+    model: type[M]
 
     def __init__(self, session: AsyncSession):
         self.session = session
     
-    async def get(self, id: Any) -> Optional[T]:
+    async def get_model(self, id: UUID) -> Optional[M]:
         return await self.session.get(self.model, id)
+
+    async def get(self, id: UUID) -> Optional[T]:
+        model: M = await self.get_model(id)
+        if model is None:
+            return None
+        return self._model_to_entity(model)
     
+    # Abstract methods for mapping (implemented in concrete repositories)
+    def _model_to_entity(self, model: M) -> T:
+        """Convert ORM model to domain entity - implement in subclass"""
+        raise NotImplementedError("Subclass must implement _model_to_entity")
+
     async def add(self, obj: T) -> T:
+        model: M = await self._entity_to_model(obj)
+        added_model = await self.add_model(model)
+        return self._model_to_entity(added_model)
+    
+    async def add_model(self, obj: M) -> M:
         self.session.add(obj)
         await self.session.flush([obj])
         return obj
     
+    def _entity_to_model(self, entity: T) -> M:
+        """Convert domain entity to ORM model - implement in subclass"""
+        raise NotImplementedError("Subclass must implement _entity_to_model")
+    
+
     async def delete(self, obj: T) -> None:
         await self.session.delete(obj)
         await self.session.flush([obj])
@@ -48,9 +72,11 @@ class Repository(Generic[T]):
 
         statement = statement.offset(offset).limit(limit)
         result = await self.session.execute(statement)
-        return list(result.scalars().all())
+        # return list(result.scalars().all())
+        models = result.scalars().all()
+        return [self._model_to_entity(model) for model in models]
     
-    async def update(self, id: uuid.UUID, values: dict[str, Any]) -> Optional[T]:
+    async def update(self, id: UUID, values: dict[str, Any]) -> Optional[T]:
         obj = await self.get(id)
         if not obj:
             return None
@@ -100,4 +126,7 @@ class Repository(Generic[T]):
             statement = statement.where(column == value)
         
         result = await self.session.execute(statement)
-        return result.scalars().first()
+        obj = result.scalars().first()
+        if obj is None:
+            return None
+        return self._model_to_entity(obj)
