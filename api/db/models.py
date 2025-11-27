@@ -79,6 +79,6 @@ class TopicInstruction(Base):
     # Relationship with Topic
     topic = relationship(
         "Topic", 
-        back_populates="topic_instruction",
+        back_populates="instructions",
         foreign_keys=[topic_id]
     )

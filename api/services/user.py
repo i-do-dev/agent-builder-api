@@ -54,7 +54,6 @@ class UserService:
         if exits := await self._exists(user_entity.username, user_entity.email):
             raise exits        
         try:
-            new_user = await self.db.user.add(UserMapper.entity_to_model_with_password(user_entity))
-            return UserMapper.model_to_entity(new_user)
+            return await self.db.user.add(user_entity)
         except Exception as e:
             raise RuntimeError(f"User creation failed: {str(e)}") from e

@@ -3,19 +3,23 @@ from sqlalchemy.orm import selectinload
 from typing import Optional
 from api.db.repositories.base import Repository
 from api.db.models import User as UserModel
-from api.entities.user import User as UserEntity
+from api.entities.user import User as UserEntity, UserWithPassword
 from api.mappers.user import UserMapper
 
 class UserRepository(Repository[UserEntity, UserModel]):
     """Repository for User model."""
     model = UserModel
 
-    def _model_to_entity(self, model: UserModel) -> UserEntity:
+    async def _model_to_entity(self, model: UserModel) -> UserEntity:
         """Convert UserModel to User entity."""
         return UserMapper.model_to_entity(model)
     
-    def _entity_to_model(self, entity: UserEntity) -> UserModel:
-        return UserMapper.entity_to_model(entity)
+    async def _entity_to_model(self, entity: UserEntity) -> UserModel:
+        return UserMapper.entity_to_model_with_password(entity)
+
+    async def add(self, entity: UserWithPassword) -> Optional[UserEntity]:
+        # call parent add method
+        return await super().add(entity)
 
     async def get_by_username(self, username: str) -> Optional[UserEntity]:
         """Get a user by their username."""

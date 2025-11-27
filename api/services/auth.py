@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Optional
 from fastapi import HTTPException, status
-from api.constants import PASSWORDS_DO_NOT_MATCH_ERROR
+from api.constants import PASSWORDS_DO_NOT_MATCH_ERROR, FAILED_TO_CREATE_USER_ERROR, COULD_NOT_VALIDATE_CREDENTIALS_ERROR
 from api.contracts.responses.user import UserSignUpResponse
 from api.contracts.token import Token
 from api.contracts.user import UserAuth, UserProfile
@@ -59,6 +59,11 @@ class AuthService:
             hashed_password = self.password_svc.hash_password(request.password)
             user_entity = UserMapper.signup_request_to_entity(request, hashed_password)
             new_user_entity = await self.user_svc.create(user_entity)
+            if new_user_entity is None:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=FAILED_TO_CREATE_USER_ERROR
+                )
             return UserMapper.entity_to_signup_response(new_user_entity)
         except Exception as e:
             raise HTTPException(
@@ -73,7 +78,7 @@ class AuthService:
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
+                detail=COULD_NOT_VALIDATE_CREDENTIALS_ERROR,
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return UserProfile(

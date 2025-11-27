@@ -34,31 +34,37 @@ class Repository(Generic[T, M]):
         model: M = await self.get_model(id)
         if model is None:
             return None
-        return self._model_to_entity(model)
+        return await self._model_to_entity(model)
     
     # Abstract methods for mapping (implemented in concrete repositories)
-    def _model_to_entity(self, model: M) -> T:
+    async def _model_to_entity(self, model: M) -> T:
         """Convert ORM model to domain entity - implement in subclass"""
         raise NotImplementedError("Subclass must implement _model_to_entity")
 
     async def add(self, obj: T) -> T:
         model: M = await self._entity_to_model(obj)
         added_model = await self.add_model(model)
-        return self._model_to_entity(added_model)
+        return await self._model_to_entity(added_model)
     
     async def add_model(self, obj: M) -> M:
         self.session.add(obj)
         await self.session.flush([obj])
         return obj
     
-    def _entity_to_model(self, entity: T) -> M:
+    async def _entity_to_model(self, entity: T) -> M:
         """Convert domain entity to ORM model - implement in subclass"""
         raise NotImplementedError("Subclass must implement _entity_to_model")
     
 
     async def delete(self, obj: T) -> None:
-        await self.session.delete(obj)
-        await self.session.flush([obj])
+        id = getattr(obj, 'id', None)
+        if id is None:
+            raise ValueError("Model Object must have an 'id' attribute to delete")
+        model = await self.get_model(id)
+        if model is None:
+            raise ValueError(f"No model found with id {id} to delete")
+        await self.session.delete(model)
+        await self.session.flush()
 
     async def list(self, *, offset: int = 0, limit: int = 50, **filters: Any) -> Sequence[T]:
         statement = select(self.model)

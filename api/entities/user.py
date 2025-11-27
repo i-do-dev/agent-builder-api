@@ -1,18 +1,17 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
-import uuid
+from uuid import UUID
 
 @dataclass
 class User:
     """User domain entity representing the core business object"""
-    id: uuid.UUID | None = field(default_factory=None)
-    username: str
-    email: str
-    first_name: str | None = None
-    last_name: str | None = None
-    created_at: datetime | None = field(default_factory=None)
-    is_active: bool = True
+    id: UUID | None = field(default=None)
+    username: str | None = field(default=None)
+    email: str | None = field(default=None)
+    first_name: str | None = field(default=None)
+    last_name: str | None = field(default=None)
+    created_at: datetime | None = field(default=None)
+    is_active: bool = field(default=True)
     
     def get_full_name(self) -> str:
         """Get user's full name"""
@@ -32,7 +31,7 @@ class User:
 @dataclass
 class UserWithPassword(User):
     """User entity with password for authentication scenarios"""
-    password: str
+    password: str | None = field(default=None)
     
     def has_valid_credentials(self, password_verifier) -> bool:
         """Check if user has valid credentials for authentication"""
