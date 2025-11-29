@@ -3,16 +3,16 @@ from api.constants import EMAIL_ALREADY_REGISTERED_ERROR, USER_ALREADY_REGISTERE
 #from api.db.models import User
 from api.mappers.user import UserMapper
 from api.schemas.auth import UserAuth, UserData, UserProfile
-from api.entities.user import AuthUserEntity, UserEntity
+from api.entities.user import SecureUser, User
 from api.dependencies.db import Db
 
-class UserService:
+class UserHandler:
     """Service for handling user operations and authentication."""
     
     def __init__(self, db: Db):
         self.db = db
     
-    async def get_user(self, username_or_email: str) -> Optional[UserEntity]:
+    async def get_user(self, username_or_email: str) -> Optional[User]:
         """Get a user by username or email."""
         user = await self.db.user.get_valid(username_or_email)
         if user:
@@ -41,11 +41,11 @@ class UserService:
             return ValueError(EMAIL_ALREADY_REGISTERED_ERROR)
         return None
     
-    async def create(self, user_entity: AuthUserEntity) -> UserEntity:
+    async def create(self, secure_user: SecureUser) -> User:
         """Create a new user if username or email does not exist."""
-        if exits := await self._exists(user_entity.username, user_entity.email):
+        if exits := await self._exists(secure_user.username, secure_user.email):
             raise exits        
         try:
-            return await self.db.user.add(user_entity)
+            return await self.db.user.add(secure_user)
         except Exception as e:
             raise RuntimeError(f"User creation failed: {str(e)}") from e

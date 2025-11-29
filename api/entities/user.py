@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from api.services.password_hasher import IPasswordHasher
 
 @dataclass
-class UserEntity:
+class User:
     """User domain entity representing the core business object"""
     id: Optional[UUID] = field(default=None)
     username: Optional[str] = field(default=None)
@@ -25,7 +25,7 @@ class UserEntity:
         return f"{self.first_name or ''} {self.last_name or ''}".strip()
 
 @dataclass
-class AuthUserEntity(UserEntity):
+class SecureUser(User):
     """User entity with password for authentication scenarios"""
     password: Optional[HashedPassword] = field(default=None)
 

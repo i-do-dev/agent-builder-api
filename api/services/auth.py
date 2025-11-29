@@ -8,13 +8,13 @@ from api.contracts.user import UserAuth, UserProfile
 from api.contracts.requests.user import UserSignUpRequest
 from api.mappers.user import UserMapper
 from api.services.password import PasswordService
-from api.services.user import UserService
+from api.services.user_handler import UserHandler
 from api.services.token import TokenService
 
 class AuthService:
     """Service for handling authentication workflows."""
     
-    def __init__(self, user_svc: UserService, token_svc: TokenService, password_svc: PasswordService):
+    def __init__(self, user_svc: UserHandler, token_svc: TokenService, password_svc: PasswordService):
         self.user_svc = user_svc
         self.token_svc = token_svc
         self.password_svc = password_svc

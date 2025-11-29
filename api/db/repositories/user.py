@@ -3,33 +3,33 @@ from sqlalchemy.orm import selectinload
 from typing import Optional
 from api.db.repositories.base import Repository
 from api.db.models import User as UserModel
-from api.entities.user import UserEntity as UserEntity, AuthUserEntity
+from api.entities.user import User, SecureUser
 from api.mappers.user import UserMapper
 
-class UserRepository(Repository[UserEntity, UserModel]):
+class UserRepository(Repository[User, UserModel]):
     """Repository for User model."""
     model = UserModel
 
-    async def _model_to_entity(self, model: UserModel) -> UserEntity:
+    async def _model_to_entity(self, model: UserModel) -> User:
         """Convert UserModel to User entity."""
         return UserMapper.model_to_entity(model)
     
-    async def _entity_to_model(self, entity: UserEntity) -> UserModel:
+    async def _entity_to_model(self, entity: User) -> UserModel:
         return UserMapper.entity_to_model_with_password(entity)
 
-    async def add(self, entity: AuthUserEntity) -> Optional[UserEntity]:
+    async def add(self, entity: SecureUser) -> Optional[User]:
         # call parent add method
         return await super().add(entity)
 
-    async def get_by_username(self, username: str) -> Optional[UserEntity]:
+    async def get_by_username(self, username: str) -> Optional[User]:
         """Get a user by their username."""
         return await self.get_by(username=username)
     
-    async def get_by_email(self, email: str) -> Optional[UserEntity]:
+    async def get_by_email(self, email: str) -> Optional[User]:
         """Get a user by their email."""
         return await self.get_by(email=email)
     
-    async def get_valid(self, username_or_email) -> Optional[UserEntity]:
+    async def get_valid(self, username_or_email) -> Optional[User]:
         statement = select(self.model).where(
             or_(
                 self.model.username == username_or_email, self.model.email == username_or_email                

@@ -3,36 +3,29 @@ from api.constants import FAILED_TO_CREATE_USER_ERROR, PASSWORDS_DO_NOT_MATCH_ER
 from api.contracts.requests.user import UserSignUpRequest
 from api.contracts.responses.user import UserSignUpResponse
 from api.dependencies.db import Db
-from api.entities.user import AuthUserEntity
+from api.entities.user import SecureUser
 from api.mappers.user import UserMapper
 from api.services.password_hasher import IPasswordHasher
-from api.services.user import UserService
+from api.services.user_handler import UserHandler
 from api.value_objects.password import PlainPassword
 
 class UserSignup:
-    def __init__(self, user_handler: UserService, password_hasher: IPasswordHasher) -> None:
+    def __init__(self, user_handler: UserHandler, password_hasher: IPasswordHasher) -> None:
         self.user_handler = user_handler
         self.password_hasher = password_hasher
     
     async def signup(self, request: UserSignUpRequest) -> UserSignUpResponse:
         """ Handle user signup logic """
-        self._validate_register_request(request)
-        
+        self._validate_register_request(request)        
         try:
-
-            user_entity = UserMapper.signup_request_to_entity(request, self.password_hasher)
-            print("Mapped User Entity::::::::::::::::::")
-            print(user_entity)
-            
-            # Save user using user service
-            #new_user_entity = await self.user_handler.create_user(user_entity)
-            new_user_entity = None
-            if not new_user_entity:
+            secure_user: SecureUser = UserMapper.signup_request_to_entity(request, self.password_hasher)
+            new_user = await self.user_handler.create(secure_user)
+            if not new_user:
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=FAILED_TO_CREATE_USER_ERROR  
                 )
-            return UserMapper.entity_to_signup_response(new_user_entity)
+            return UserMapper.entity_to_signup_response(new_user)
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
