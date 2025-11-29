@@ -3,7 +3,7 @@ from sqlalchemy.orm import selectinload
 from typing import Optional
 from api.db.repositories.base import Repository
 from api.db.models import User as UserModel
-from api.entities.user import User as UserEntity, UserWithPassword
+from api.entities.user import UserEntity as UserEntity, AuthUserEntity
 from api.mappers.user import UserMapper
 
 class UserRepository(Repository[UserEntity, UserModel]):
@@ -17,7 +17,7 @@ class UserRepository(Repository[UserEntity, UserModel]):
     async def _entity_to_model(self, entity: UserEntity) -> UserModel:
         return UserMapper.entity_to_model_with_password(entity)
 
-    async def add(self, entity: UserWithPassword) -> Optional[UserEntity]:
+    async def add(self, entity: AuthUserEntity) -> Optional[UserEntity]:
         # call parent add method
         return await super().add(entity)
 
@@ -39,7 +39,7 @@ class UserRepository(Repository[UserEntity, UserModel]):
         obj = result.scalars().first()
         if obj is None:
             return None
-        return self._model_to_entity(obj)    
+        return await self._model_to_entity(obj)    
 
     # async def get_with_agents(self, user_id: str) -> Optional[User]:
     #     """Get user with agents - matches model_to_entity_with_agents"""

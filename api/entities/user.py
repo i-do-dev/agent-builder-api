@@ -1,38 +1,42 @@
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
+from api.value_objects.password import HashedPassword
+from api.value_objects.password import PlainPassword
+
+if TYPE_CHECKING:
+    from api.services.password_hasher import IPasswordHasher
+
 @dataclass
-class User:
+class UserEntity:
     """User domain entity representing the core business object"""
-    id: UUID | None = field(default=None)
-    username: str | None = field(default=None)
-    email: str | None = field(default=None)
-    first_name: str | None = field(default=None)
-    last_name: str | None = field(default=None)
-    created_at: datetime | None = field(default=None)
+    id: Optional[UUID] = field(default=None)
+    username: Optional[str] = field(default=None)
+    email: Optional[str] = field(default=None)
+    first_name: Optional[str] = field(default=None)
+    last_name: Optional[str] = field(default=None)
+    created_at: Optional[datetime] = field(default=None)
     is_active: bool = field(default=True)
     
     def get_full_name(self) -> str:
         """Get user's full name"""
         return f"{self.first_name or ''} {self.last_name or ''}".strip()
-    
-    def can_authenticate(self) -> bool:
-        """Check if user can authenticate"""
-        return self.is_active
-    
-    def update_profile(self, first_name: str = None, last_name: str = None) -> None:
-        """Update user profile information"""
-        if first_name is not None:
-            self.first_name = first_name
-        if last_name is not None:
-            self.last_name = last_name
 
 @dataclass
-class UserWithPassword(User):
+class AuthUserEntity(UserEntity):
     """User entity with password for authentication scenarios"""
-    password: str | None = field(default=None)
+    password: Optional[HashedPassword] = field(default=None)
+
+    def set_password(self, plain_password: PlainPassword, password_hasher: Optional["IPasswordHasher"]) -> None:
+        """Set user's password by hashing the plain password"""
+        if password_hasher is None:
+            raise ValueError("Password hasher is not set")
+        self.password = plain_password.hash_with(password_hasher)
     
-    def has_valid_credentials(self, password_verifier) -> bool:
-        """Check if user has valid credentials for authentication"""
-        return self.is_active and password_verifier is not None
+    def authenticate(self, plain_password: PlainPassword, password_hasher: Optional["IPasswordHasher"]) -> bool:
+        """Authenticate user by verifying the plain password against the stored hash"""
+        if self.password is None or password_hasher is None:
+            return False
+        return self.password.verify_against(plain_password.value, password_hasher)

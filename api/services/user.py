@@ -3,7 +3,7 @@ from api.constants import EMAIL_ALREADY_REGISTERED_ERROR, USER_ALREADY_REGISTERE
 #from api.db.models import User
 from api.mappers.user import UserMapper
 from api.schemas.auth import UserAuth, UserData, UserProfile
-from api.entities.user import UserWithPassword, User
+from api.entities.user import AuthUserEntity, UserEntity
 from api.dependencies.db import Db
 
 class UserService:
@@ -12,19 +12,11 @@ class UserService:
     def __init__(self, db: Db):
         self.db = db
     
-    async def get_user(self, username_or_email: str) -> Optional[UserAuth]:
+    async def get_user(self, username_or_email: str) -> Optional[UserEntity]:
         """Get a user by username or email."""
         user = await self.db.user.get_valid(username_or_email)
         if user:
-            return UserAuth(
-                    id=user.id,
-                    username=user.username, 
-                    email=user.email, 
-                    password=user.password,
-                    first_name=user.first_name,
-                    last_name=user.last_name,
-                    created_at=user.created_at.isoformat()
-                )
+            return user
         return None
     
     async def get_by_username(self, username: str) -> Optional[UserAuth]:
@@ -49,7 +41,7 @@ class UserService:
             return ValueError(EMAIL_ALREADY_REGISTERED_ERROR)
         return None
     
-    async def create(self, user_entity: UserWithPassword) -> User:
+    async def create(self, user_entity: AuthUserEntity) -> UserEntity:
         """Create a new user if username or email does not exist."""
         if exits := await self._exists(user_entity.username, user_entity.email):
             raise exits        

@@ -6,7 +6,7 @@ from typing import Optional, List, TYPE_CHECKING
 # Only import for type checking to avoid circular imports
 if TYPE_CHECKING:
     from api.entities.topic import Topic
-    from api.entities.user import User
+    from api.entities.user import UserEntity
 
 @dataclass
 class Agent:
@@ -52,7 +52,7 @@ class AgentWithTopics(Agent):
 @dataclass
 class AgentWithUser(Agent):
     """Agent entity with user relationship loaded"""
-    user: Optional['User'] = field(default=None)
+    user: Optional['UserEntity'] = field(default=None)
     
     def get_owner_name(self) -> str:
         """Get the owner's name if user is loaded"""

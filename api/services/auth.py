@@ -19,41 +19,49 @@ class AuthService:
         self.token_svc = token_svc
         self.password_svc = password_svc
         
-    async def authenticate_user(self, username_or_email: str, password: str) -> Optional[UserAuth]:
+    async def _authenticate_user(self, username_or_email: str, password: str) -> Optional[UserAuth]:
         """Authenticate a user with username and password."""
         user = await self.user_svc.get_user(username_or_email)
-        if not user:
-            return None
-        if not self.password_svc.verify_password(password, user.password):
-            return None
-        return user
-    
-    async def login(self, username: str, password: str) -> Token:
-        """Authenticate user and return access token."""
-        user = await self.authenticate_user(username, password)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+        
+        if not self.password_svc.verify_password(password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return user
+    
+    def _password_match(self, password: str, confirm_password: str) -> bool:
+        """Compare password and confirm password."""
+        return password == confirm_password
+    
+    def _validate_register_request(self, request: UserSignUpRequest) -> None:
+        """Validate registration request data."""
+        if not self._password_match(request.password, request.confirm_password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=PASSWORDS_DO_NOT_MATCH_ERROR
+            )
+
+    async def login(self, username: str, password: str) -> Token:
+        """Authenticate user and return access token."""
+        user = await self._authenticate_user(username, password)
         access_token_expires = timedelta(minutes=self.token_svc.access_token_expire_minutes)
         access_token = self.token_svc.create_access_token(
             data={"sub": user.username}, expires_delta=access_token_expires
         )
         return Token(access_token=access_token, token_type="bearer")
     
-    def _password_match(self, password: str, confirm_password: str) -> bool:
-        """Compare password and confirm password."""
-        return password == confirm_password
     
     async def register(self, request: UserSignUpRequest) -> UserSignUpResponse:
         """Register a new user."""
-        if not self._password_match(request.password, request.confirm_password):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=PASSWORDS_DO_NOT_MATCH_ERROR
-            )
+        self._validate_register_request(request)
 
         try:
             hashed_password = self.password_svc.hash_password(request.password)

@@ -1,18 +1,21 @@
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 from api.db.models import User as UserModel
-from api.entities.user import User, UserWithPassword
+from api.entities.user import UserEntity, AuthUserEntity
 from api.contracts.requests.user import UserSignUpRequest
 from api.contracts.responses.user import UserSignUpResponse
 from api.contracts.user import UserAuth, UserDataWithPassword, UserProfile
 from datetime import datetime
 from uuid import UUID
 
+from api.services.password_hasher import IPasswordHasher
+from api.value_objects.password import PlainPassword
+
 class UserMapper:
     """User mapper to convert between Model, Entity, and Response"""
     
     @staticmethod
-    def model_to_entity(model: UserModel) -> Optional[User]:
+    def model_to_entity(model: UserModel) -> Optional[UserEntity]:
         """Convert Model to domain entity"""
         if not model:
             return None
@@ -32,7 +35,7 @@ class UserMapper:
         user = UserFromModel.model_validate(model)
         
         # Convert to domain entity
-        return User(
+        return UserEntity(
             id=user.id,
             username=user.username,
             email=user.email,
@@ -42,7 +45,7 @@ class UserMapper:
         )
     
     @staticmethod
-    def entity_to_model(entity: User) -> UserModel:
+    def entity_to_model(entity: UserEntity) -> UserModel:
         # Convert domain entity to SQLAlchemy model
         fields_mapping = {
             'username': entity.username,
@@ -59,7 +62,7 @@ class UserMapper:
         return UserModel(**kwargs)
 
     @staticmethod
-    def entity_to_model_with_password(entity: UserWithPassword) -> UserModel:
+    def entity_to_model_with_password(entity: AuthUserEntity) -> UserModel:
         # Convert domain entity to SQLAlchemy model with password
         fields_mapping = {
             'username': entity.username,
@@ -76,7 +79,7 @@ class UserMapper:
         return UserModel(**kwargs)
     
     @staticmethod
-    def entity_to_profile(entity: User) -> UserProfile:
+    def entity_to_profile(entity: UserEntity) -> UserProfile:
         """Convert domain entity to UserProfile."""
         return UserProfile(
             id=entity.id,
@@ -88,21 +91,22 @@ class UserMapper:
         )
     
     @staticmethod
-    def signup_request_to_entity(request: UserSignUpRequest, hashed_password: str) -> UserWithPassword:
+    def signup_request_to_entity(request: UserSignUpRequest, password_hasher: IPasswordHasher) -> AuthUserEntity:
         fields_mapping = {
             'username': request.username,
             'email': request.email,
             'first_name': request.first_name,
-            'last_name': request.last_name,
-            'password': hashed_password,
+            'last_name': request.last_name
         }
         
         kwargs = {k: v for k, v in fields_mapping.items() if v is not None}
         """Create domain entity from signup request."""
-        return UserWithPassword(**kwargs)
+        auth_user_entity = AuthUserEntity(**kwargs)
+        auth_user_entity.set_password(PlainPassword(request.password), password_hasher)
+        return auth_user_entity
     
     @staticmethod
-    def entity_to_signup_response(entity: User) -> UserSignUpResponse:
+    def entity_to_signup_response(entity: UserEntity) -> UserSignUpResponse:
         """Convert domain entity to UserSignUpResponse."""
         fields_mapping = {
             'id': entity.id,

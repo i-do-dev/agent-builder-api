@@ -3,24 +3,37 @@ from typing import Annotated
 from fastapi import Depends
 from api.dependencies.common import BearerToken, TokenSvc
 from api.dependencies.db import Db
-from api.services.auth import AuthService
-from api.services.user import UserService
+from api.entities.user import AuthUserEntity
 from api.services.password import PasswordService
+from api.services.auth import AuthService
+from api.services.password_hasher import PasswordHasher
+from api.services.user import UserService
 from api.contracts.user import UserProfile
+from api.services.user_signup import UserSignup
 from api.settings import Settings
+from api.value_objects.password import HashedPassword
 
 settings = Settings()
 
-@lru_cache()
-def get_password_service() -> PasswordService:
-    return PasswordService()
-
-@lru_cache()
 def get_user_service(db: Db) -> UserService:
     user_service = UserService(db)
     return user_service
 
-@lru_cache()
+def get_password_hasher() -> PasswordHasher:
+    return PasswordHasher()
+
+def get_user_signup_service(
+    user_handler: Annotated[UserService, Depends(get_user_service)],
+    password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)]
+) -> UserSignup:
+    return UserSignup(user_handler, password_hasher)
+
+UserSignupSvc = Annotated[UserSignup, Depends(get_user_signup_service)]
+
+# ============================================
+def get_password_service() -> PasswordService:
+    return PasswordService()
+
 def get_auth_service(
     user_svc: Annotated[UserService, Depends(get_user_service)],
     token_svc: TokenSvc,
