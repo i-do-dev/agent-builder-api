@@ -2,14 +2,12 @@ from fastapi import HTTPException, status
 from api.constants import FAILED_TO_CREATE_USER_ERROR, PASSWORDS_DO_NOT_MATCH_ERROR
 from api.contracts.requests.user import UserSignUpRequest
 from api.contracts.responses.user import UserSignUpResponse
-from api.dependencies.db import Db
 from api.entities.user import SecureUser
 from api.mappers.user import UserMapper
 from api.services.password_hasher import IPasswordHasher
 from api.services.user_handler import UserHandler
-from api.value_objects.password import PlainPassword
 
-class UserSignup:
+class UserSignUp:
     def __init__(self, user_handler: UserHandler, password_hasher: IPasswordHasher) -> None:
         self.user_handler = user_handler
         self.password_hasher = password_hasher

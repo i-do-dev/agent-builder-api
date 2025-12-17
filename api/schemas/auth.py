@@ -22,10 +22,6 @@ class UserProfile(UserData):
     id: UUID
     created_at: str | None = None
 
-class UserAuth(UserDataWithPassword):
-    id: UUID
-    created_at: str | None = None
-
 class UserSignUpRequest(UserData):
     password: str = Field(..., min_length=8)
     confirm_password: str = Field(..., min_length=8)

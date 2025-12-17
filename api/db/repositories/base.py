@@ -80,7 +80,7 @@ class Repository(Generic[T, M]):
         result = await self.session.execute(statement)
         # return list(result.scalars().all())
         models = result.scalars().all()
-        return [self._model_to_entity(model) for model in models]
+        return [await self._model_to_entity(model) for model in models]
     
     async def update(self, id: UUID, values: dict[str, Any]) -> Optional[T]:
         obj = await self.get(id)
@@ -135,4 +135,4 @@ class Repository(Generic[T, M]):
         obj = result.scalars().first()
         if obj is None:
             return None
-        return self._model_to_entity(obj)
+        return await self._model_to_entity(obj)

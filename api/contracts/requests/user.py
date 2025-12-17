@@ -3,7 +3,7 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from api.contracts.user import UserData
 
-class LoginRequest(BaseModel):
+class UserSignRequest(BaseModel):
     """Request contract for user authentication"""
     identifier: str = Field(..., description="Username or email address")
     password: str = Field(..., min_length=1, description="User's password")

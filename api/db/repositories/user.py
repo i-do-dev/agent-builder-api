@@ -10,6 +10,10 @@ class UserRepository(Repository[User, UserModel]):
     """Repository for User model."""
     model = UserModel
 
+    async def _user_to_secure_user_entity(self, model: UserModel) -> SecureUser:
+        """Convert UserModel to SecureUser entity."""
+        return UserMapper.model_to_secure_user_entity(model)
+
     async def _model_to_entity(self, model: UserModel) -> User:
         """Convert UserModel to User entity."""
         return UserMapper.model_to_entity(model)
@@ -29,7 +33,7 @@ class UserRepository(Repository[User, UserModel]):
         """Get a user by their email."""
         return await self.get_by(email=email)
     
-    async def get_valid(self, username_or_email) -> Optional[User]:
+    async def get_valid_secure(self, username_or_email) -> Optional[SecureUser]:
         statement = select(self.model).where(
             or_(
                 self.model.username == username_or_email, self.model.email == username_or_email                
@@ -39,7 +43,7 @@ class UserRepository(Repository[User, UserModel]):
         obj = result.scalars().first()
         if obj is None:
             return None
-        return await self._model_to_entity(obj)    
+        return await self._user_to_secure_user_entity(obj)    
 
     # async def get_with_agents(self, user_id: str) -> Optional[User]:
     #     """Get user with agents - matches model_to_entity_with_agents"""

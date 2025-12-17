@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 from api.schemas.auth import TokenPayload
 from api.settings import Settings
 
-class TokenService:
+class TokenHandler:
     """Service for handling JWT token creation and verification."""
     
     def __init__(self, settings: Settings = None):        
@@ -16,17 +16,17 @@ class TokenService:
     
     def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None) -> str:
         """Create a JWT access token."""
-        to_encode = data.copy()
+        data_to_encode = data.copy()
         if expires_delta:
             expire = datetime.now(timezone.utc) + expires_delta
         else:
             expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-        to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
+        data_to_encode.update({"exp": expire})
+        encoded_jwt = jwt.encode(data_to_encode, self.secret_key, algorithm=self.algorithm)
         return encoded_jwt
     
-    def verify_token(self, token: str) -> str:
-        """Verify a JWT token and return the username."""
+    def decode(self, token: str) -> TokenPayload:
+        """Decode and verify a JWT token."""
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -35,25 +35,9 @@ class TokenService:
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             username: str = payload.get("sub")
-            if username is None:
+            exp: int = payload.get("exp")
+            if username is None or exp is None:
                 raise credentials_exception
-            return username
+            return TokenPayload(sub=username, exp=exp)
         except InvalidTokenError:
             raise credentials_exception
-        
-    def decode(self, token: str) -> TokenPayload:
-        """Decode a JWT token without verification."""
-        try:
-            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm], options={"verify_exp": False})
-            print("*-*-*-*-*-*-*-*-*- Decoded payload SUB :", payload.get("sub"))
-            print("*-*-*-*-*-*-*-*-*- Decoded payload EXP:", payload.get("exp"))
-            return TokenPayload(
-                sub=payload.get("sub"),
-                exp=payload.get("exp")
-            )
-        except InvalidTokenError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not decode token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )

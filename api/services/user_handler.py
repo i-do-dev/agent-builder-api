@@ -1,8 +1,5 @@
 from typing import Optional
 from api.constants import EMAIL_ALREADY_REGISTERED_ERROR, USER_ALREADY_REGISTERED_ERROR
-#from api.db.models import User
-from api.mappers.user import UserMapper
-from api.schemas.auth import UserAuth, UserData, UserProfile
 from api.entities.user import SecureUser, User
 from api.dependencies.db import Db
 
@@ -12,28 +9,20 @@ class UserHandler:
     def __init__(self, db: Db):
         self.db = db
     
-    async def get_user(self, username_or_email: str) -> Optional[User]:
+    async def get_secure_user(self, username_or_email: str) -> Optional[SecureUser]:
         """Get a user by username or email."""
-        user = await self.db.user.get_valid(username_or_email)
+        user: SecureUser = await self.db.user.get_valid_secure(username_or_email)
         if user:
             return user
         return None
     
-    async def get_by_username(self, username: str) -> Optional[UserAuth]:
+    async def get_by_username(self, username: str) -> Optional[User]:
         """Get a user by username."""
-        user = await self.db.user.get_by_username(username)
-        if user:
-            return UserAuth(
-                    id=user.id,
-                    username=user.username, 
-                    email=user.email, 
-                    password=user.password,
-                    first_name=user.first_name,
-                    last_name=user.last_name,
-                    created_at=user.created_at.isoformat()
-                )
-        return None
-        
+        user: User = await self.db.user.get_by_username(username)
+        if not user:
+            return None
+        return user
+    
     async def _exists(self, username: str, email: str) -> Exception | None:
         if await self.db.user.get_by_username(username):
             return ValueError(USER_ALREADY_REGISTERED_ERROR)

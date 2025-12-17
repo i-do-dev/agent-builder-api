@@ -1,15 +1,15 @@
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
+from api.contracts.user import UserProfile
 from api.db.models import User as UserModel
 from api.entities.user import User, SecureUser
 from api.contracts.requests.user import UserSignUpRequest
-from api.contracts.responses.user import UserSignUpResponse
-from api.contracts.user import UserAuth, UserDataWithPassword, UserProfile
+from api.contracts.responses.user import UserProfileResponse, UserSignUpResponse
 from datetime import datetime
 from uuid import UUID
 
 from api.services.password_hasher import IPasswordHasher
-from api.value_objects.password import PlainPassword
+from api.value_objects.password import HashedPassword, PlainPassword
 
 class UserMapper:
     """User mapper to convert between Model, Entity, and Response"""
@@ -44,6 +44,39 @@ class UserMapper:
             created_at=user.created_at
         )
     
+    @staticmethod
+    def model_to_secure_user_entity(model: UserModel) -> Optional[SecureUser]:
+        """Convert Model to domain entity with password"""
+        if not model:
+            return None
+            
+        # Parse and validate the SQLAlchemy model using Pydantic
+        class UserFromModelWithPassword(BaseModel):
+            """Pydantic model for User from SQLAlchemy model with password"""
+            model_config = ConfigDict(from_attributes=True)
+
+            id: UUID
+            username: str
+            email: str
+            first_name: Optional[str]
+            last_name: Optional[str]
+            password: str
+            created_at: datetime
+            
+        user = UserFromModelWithPassword.model_validate(model)
+        
+        # Convert to domain entity
+        secure_user = SecureUser(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            created_at=user.created_at
+        )
+        secure_user.password = HashedPassword(user.password)
+        return secure_user
+
     @staticmethod
     def entity_to_model(entity: User) -> UserModel:
         # Convert domain entity to SQLAlchemy model
@@ -87,7 +120,7 @@ class UserMapper:
             email=entity.email,
             first_name=entity.first_name,
             last_name=entity.last_name,
-            created_at=entity.created_at,
+            created_at=entity.created_at.strftime("%m/%d/%Y %I:%M:%S %p") if entity.created_at else None
         )
     
     @staticmethod
@@ -109,15 +142,27 @@ class UserMapper:
     def entity_to_signup_response(entity: User) -> UserSignUpResponse:
         """Convert domain entity to UserSignUpResponse."""
         fields_mapping = {
-            'id': entity.id,
             'username': entity.username,
             'email': entity.email,
             'first_name': entity.first_name,
             'last_name': entity.last_name,
-            'created_at': entity.created_at.strftime("%m/%d/%Y %I:%M:%S %p") if entity.created_at else None
+            'joined_at': entity.created_at.strftime("%m/%d/%Y %I:%M:%S %p") if entity.created_at else None
         }
         kwargs = {k: v for k, v in fields_mapping.items() if v is not None}
         return UserSignUpResponse(**kwargs)
+    
+    @staticmethod
+    def entity_to_profile_response(entity: User) -> UserProfileResponse:
+        """Convert domain entity to UserProfileResponse."""
+        fields_mapping = {
+            'username': entity.username,
+            'email': entity.email,
+            'first_name': entity.first_name,
+            'last_name': entity.last_name,
+            'joined_at': entity.created_at.strftime("%m/%d/%Y %I:%M:%S %p") if entity.created_at else None
+        }
+        kwargs = {k: v for k, v in fields_mapping.items() if v is not None}
+        return UserProfileResponse(**kwargs)
     
     """
     @staticmethod

@@ -14,11 +14,10 @@ class UserProfile(UserData):
     id: UUID
     created_at: str | None = None
 
+class UserProfileNoKey(UserData):
+    """ Public user profile contract without key """
+    joined_at: str | None = None
+
 class UserDataWithPassword(UserData):
     """ User contract for authentication including password """
     password: str = Field(..., min_length=8)
-
-class UserAuth(UserDataWithPassword):
-    """ User contract including authentication details """
-    id: UUID
-    created_at: str | None = None
