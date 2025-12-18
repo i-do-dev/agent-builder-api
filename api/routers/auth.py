@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from api.contracts.responses.user import UserProfileResponse, UserSignUpResponse
 from api.dependencies.auth import UserSignInSvc, UserSignUpSvc, get_user_signin_service
 from api.dependencies.common import BearerToken
-from api.schemas.auth import Token
+from api.contracts.token import Token
 from api.contracts.requests.user import UserSignUpRequest
 from api.services.user_signin import UserSignIn
 
