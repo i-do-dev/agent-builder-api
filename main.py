@@ -1,40 +1,60 @@
-from fastapi import FastAPI
-import models
-from db_postgres import engine
-from routers import agents, topics, topic_instructions, users
+import sys
+import logging
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from routers.graph_router import router as graph_router
+from settings import Settings
+from src.adapters.db.session import async_engine as engine
+from api.routers import agents, auth
+from contextlib import asynccontextmanager
 
-# Ensure all tables are created in the database
-models.Base.metadata.create_all(bind=engine)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Initialize the FastAPI app
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup: log starting message
+    logger.info("*** Starting %s (env=%s)", settings.app_name, settings.env_name)
+    
+    # yield control to the application
+    yield
 
+    # shutdown: dispose of the async engine
+    try:
+        await engine.dispose()
+    except Exception as e:
+        logger.error("Error during engine disposal: %s", e)
+
+    logger.info("*** Shut down %s", settings.app_name)
+
+
+settings = Settings()
+
+# Initialize the FastAPI app with the application name from settings
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    lifespan=lifespan
+)
+
+# Configure CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+)   
 
-# Include the users router with a prefix and tags for better API documentation
-app.include_router(users.router, prefix="/api", tags=["users"])
+# Include the auth router with a prefix and tags for better API documentation
+app.include_router(auth.router, tags=["auth"])
+app.include_router(agents.router, tags=["agents"])
 
-# Include the agents router with a prefix and tags for better API documentation
-app.include_router(agents.router, prefix="/api", tags=["agents"])
-
-# Include the topics router with a prefix and tags for better API documentation
-app.include_router(topics.router, prefix="/api", tags=["topics"])
-
-# Include the topic instructions router with a prefix and tags for better API documentation
-app.include_router(topic_instructions.router, prefix="/api", tags=["topic_instructions"])
-
-# Include the graph router for handling graph-related operations
-app.include_router(graph_router, prefix="/api", tags=["graph"])
-
-# Root endpoint to verify the application is running
+# Root endpoint to verify the application is running.
 @app.get("/")
 def root():
-    return {"message": "Agent Builder API is running"}
+    return {"message": f"{settings.app_name} is running"}

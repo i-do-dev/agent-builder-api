@@ -2,12 +2,12 @@ from functools import lru_cache
 from typing import Annotated
 from fastapi import Depends
 from api.dependencies.db import Db
-from api.services.password_hasher import PasswordHasher
-from api.services.token_handler import TokenHandler
-from api.services.user_handler import UserHandler
-from api.services.user_signin import UserSignIn
-from api.services.user_signup import UserSignUp
-from api.settings import Settings
+from src.core.services.password_hasher import PasswordHasher
+from src.core.services.token_handler import TokenHandler
+from src.core.services.user_handler import UserHandler
+from src.core.services.user_signin import UserSignIn
+from src.core.services.user_signup import UserSignUp
+from settings import Settings
 
 settings = Settings()
 

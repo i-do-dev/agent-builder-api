@@ -1,4 +1,4 @@
-from api.db.uow import UnitOfWork, uow_context
+from src.adapters.db.uow import UnitOfWork, uow_context
 from typing import AsyncGenerator
 from typing import Annotated
 from fastapi import Depends

@@ -6,7 +6,7 @@ from api.dependencies.auth import UserSignInSvc, UserSignUpSvc, get_user_signin_
 from api.dependencies.common import BearerToken
 from api.contracts.token import Token
 from api.contracts.requests.user import UserSignUpRequest
-from api.services.user_signin import UserSignIn
+from src.core.services.user_signin import UserSignIn
 
 router = APIRouter(
     prefix="/auth",

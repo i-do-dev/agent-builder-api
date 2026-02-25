@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import Depends
 from functools import lru_cache
 from api.dependencies.db import Db
-from api.services.agent import AgentService
+from src.core.services.agent import AgentService
 
 @lru_cache()
 def get_agent_service(

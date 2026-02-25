@@ -1,0 +1,56 @@
+from sqlalchemy import select, or_
+from sqlalchemy.orm import selectinload
+from typing import Optional
+from src.adapters.db.repositories.base import Repository
+from src.adapters.db.models import User as UserModel
+from src.core.entities.user import User, SecureUser
+from src.adapters.db.mappers.user import UserMapper
+
+class UserRepository(Repository[User, UserModel]):
+    """Repository for User model."""
+    model = UserModel
+
+    async def _user_to_secure_user_entity(self, model: UserModel) -> SecureUser:
+        """Convert UserModel to SecureUser entity."""
+        return UserMapper.model_to_secure_user_entity(model)
+
+    async def _model_to_entity(self, model: UserModel) -> User:
+        """Convert UserModel to User entity."""
+        return UserMapper.model_to_entity(model)
+    
+    async def _entity_to_model(self, entity: User) -> UserModel:
+        return UserMapper.entity_to_model_with_password(entity)
+
+    async def add(self, entity: SecureUser) -> Optional[User]:
+        # call parent add method
+        return await super().add(entity)
+
+    async def get_by_username(self, username: str) -> Optional[User]:
+        """Get a user by their username."""
+        return await self.get_by(username=username)
+    
+    async def get_by_email(self, email: str) -> Optional[User]:
+        """Get a user by their email."""
+        return await self.get_by(email=email)
+    
+    async def get_valid_secure(self, username_or_email) -> Optional[SecureUser]:
+        statement = select(self.model).where(
+            or_(
+                self.model.username == username_or_email, self.model.email == username_or_email                
+            )
+        )
+        result = await self.session.execute(statement)
+        obj = result.scalars().first()
+        if obj is None:
+            return None
+        return await self._user_to_secure_user_entity(obj)    
+
+    # async def get_with_agents(self, user_id: str) -> Optional[User]:
+    #     """Get user with agents - matches model_to_entity_with_agents"""
+    #     statement = select(self.model).options(
+    #         selectinload(self.model.agents)
+    #     ).where(self.model.id == user_id)
+        
+    #     result = await self.session.execute(statement)
+    #     return result.scalars().first()
+    

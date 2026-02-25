@@ -2,8 +2,8 @@ from functools import lru_cache
 from typing import Annotated
 from fastapi.params import Depends
 from fastapi.security import OAuth2PasswordBearer
-from api.services.token_handler import TokenHandler
-from api.settings import Settings
+from src.core.services.token_handler import TokenHandler
+from settings import Settings
 
 @lru_cache()
 def get_settings() -> Settings:
