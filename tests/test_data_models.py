@@ -1,4 +1,4 @@
-from api.db.models import Agent, Topic, TopicInstructions, User
+from src.adapters.db.models import Agent, Topic, TopicInstruction, User
 
 def test_user_model():
     user = User(
@@ -52,19 +52,19 @@ def test_topic_model():
     assert topic.classification_description == "A test topic description"
     assert topic.agent_id == "123e4567-e89b-12d3-a456-426614174000"
     assert topic.agent is None
-    assert topic.topic_instructions == []
+    assert topic.instructions == []
     assert hasattr(topic, 'created_at')
     assert topic.created_at == "2023-01-01T00:00:00Z"
 
 def test_topic_instructions_model():
-    topic_instructions = TopicInstructions(
-        instructions="Test instructions",
+    topic_instruction = TopicInstruction(
+        instruction="Test instruction",
         topic_id="123e4567-e89b-12d3-a456-426614174000",
         created_at="2023-01-01T00:00:00Z"
     )
 
-    assert topic_instructions.instructions == "Test instructions"
-    assert topic_instructions.topic_id == "123e4567-e89b-12d3-a456-426614174000"
-    assert topic_instructions.topic is None
-    assert hasattr(topic_instructions, 'created_at')
-    assert topic_instructions.created_at == "2023-01-01T00:00:00Z"
+    assert topic_instruction.instruction == "Test instruction"
+    assert topic_instruction.topic_id == "123e4567-e89b-12d3-a456-426614174000"
+    assert topic_instruction.topic is None
+    assert hasattr(topic_instruction, 'created_at')
+    assert topic_instruction.created_at == "2023-01-01T00:00:00Z"

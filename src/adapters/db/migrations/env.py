@@ -5,9 +5,9 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy import Connection
 from sqlalchemy import pool
 from alembic import context
-from api.db.base import Base
-from api.db import models  # Ensure all models are imported for Alembic to detect them
-from api.settings import Settings
+from src.adapters.db.base import Base
+from src.adapters.db import models  # Ensure all models are imported for Alembic to detect them
+from settings import Settings
 from dotenv import load_dotenv
 
 class Migration:
