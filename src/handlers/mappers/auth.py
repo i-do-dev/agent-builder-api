@@ -1,12 +1,12 @@
-from api.contracts.requests.user import UserSignupHandlerHandlerRequest
-from api.contracts.responses.user import UserProfileResponse, UserSignupHandlerHandlerResponse
+from api.contracts.requests.user import UserSignUpRequest
+from api.contracts.responses.user import UserProfileResponse, UserSignUpResponse
 from api.contracts.token import Token
 from src.handlers.contracts.auth import SignInResult, SignUpCommand, UserProfileResult
 
 
 class AuthApiMapper:
     @staticmethod
-    def signup_request_to_command(request: UserSignupHandlerHandlerRequest) -> SignUpCommand:
+    def signup_request_to_command(request: UserSignUpRequest) -> SignUpCommand:
         return SignUpCommand(
             username=request.username,
             email=request.email,
@@ -17,8 +17,8 @@ class AuthApiMapper:
         )
 
     @staticmethod
-    def profile_result_to_signup_response(result: UserProfileResult) -> UserSignupHandlerHandlerResponse:
-        return UserSignupHandlerHandlerResponse(
+    def profile_result_to_signup_response(result: UserProfileResult) -> UserSignUpResponse:
+        return UserSignUpResponse(
             username=result.username,
             email=result.email,
             first_name=result.first_name,

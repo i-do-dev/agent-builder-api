@@ -2,13 +2,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from api.contracts.responses.user import UserProfileResponse, UserSignUpResponse
-from api.dependencies.auth import UserSigninHandlerDep, UserSignupHandlerDep, get_user_signin_handler
+from api.dependencies.auth import UserSigninCommandHandlerDep, UserSignupCommandHandlerDep, UserProfileQueryHandlerDep
 from api.dependencies.common import BearerToken
 from api.contracts.token import Token
 from api.contracts.requests.user import UserSignUpRequest
 from src.handlers.errors import AuthenticationError, ConflictError, ValidationError
 from src.handlers.mappers.auth import AuthApiMapper
-from src.handlers.auth.user_signin import UserSigninHandler
 
 router = APIRouter(
     prefix="/auth",
@@ -18,7 +17,7 @@ router = APIRouter(
 @router.post("/token", response_model=Token)
 async def token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    signin_handler: UserSigninHandlerDep
+    signin_handler: UserSigninCommandHandlerDep
 ) -> Token:
     try:
         result = await signin_handler.sign_in(form_data.username, form_data.password)
@@ -33,10 +32,10 @@ async def token(
 @router.get("/me", response_model=UserProfileResponse)
 async def me(
     bearer_token: BearerToken, 
-    user_signin_handler: Annotated[UserSigninHandler, Depends(get_user_signin_handler)]
+    user_profile_query_handler: UserProfileQueryHandlerDep
     ) -> UserProfileResponse:
     try:
-        result = await user_signin_handler.get_user(bearer_token)
+        result = await user_profile_query_handler.get_user(bearer_token)
         return AuthApiMapper.profile_result_to_profile_response(result)
     except AuthenticationError as exc:
         raise HTTPException(
@@ -48,7 +47,7 @@ async def me(
 @router.post("/register", response_model=UserSignUpResponse)
 async def register(
     request: Annotated[UserSignUpRequest, Form()],
-    user_signup_handler: UserSignupHandlerDep
+    user_signup_handler: UserSignupCommandHandlerDep
 ) -> UserSignUpResponse:
     command = AuthApiMapper.signup_request_to_command(request)
     try:

@@ -1,12 +1,12 @@
 from constants import PASSWORDS_DO_NOT_MATCH_ERROR
-from src.handlers.auth.password_hasher import IPasswordHasher
+from src.core.services.password_hasher import IPasswordHasher
 from src.handlers.contracts.auth import SignUpCommand, UserProfileResult
 from src.handlers.errors import ValidationError
 from src.handlers.mappers.user import UserServiceMapper
 from src.core.services.user import UserService
 
 
-class UserSignupHandler:
+class UserSignUpCommandHandler:
     def __init__(self, user_service: UserService, password_hasher: IPasswordHasher) -> None:
         self.user_service = user_service
         self.password_hasher = password_hasher

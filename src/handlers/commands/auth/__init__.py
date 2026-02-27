@@ -1,0 +1,1 @@
+"""Auth command handlers."""
