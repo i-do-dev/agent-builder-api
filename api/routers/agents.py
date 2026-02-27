@@ -1,8 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 from api.dependencies.agent import Agent
 from api.dependencies.common import BearerToken, TokenSvc
 from api.schemas.agent import AgentCreateRequest, AgentResponse
 from api.schemas.auth import TokenPayload
+from src.handlers.errors import NotFoundError
+from src.handlers.mappers.agent import AgentApiMapper
 
 router = APIRouter(
     prefix="/agents",
@@ -17,7 +19,12 @@ async def create(
         agent_req: AgentCreateRequest
     ) -> AgentResponse:
     token_payload: TokenPayload = token_svc.decode(bearer_token)
-    return await agent.create_on_request(agent_req, token_payload.sub)
+    command = AgentApiMapper.request_to_command(agent_req)
+    try:
+        result = await agent.create_on_request(command, token_payload.sub)
+        return AgentApiMapper.result_to_response(result)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 """ 
 @router.get("/agents/", response_model=list[agent_schemas.AgentResponse])
