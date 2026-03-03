@@ -3,6 +3,7 @@ from uuid import uuid4
 from unittest.mock import AsyncMock
 import pytest
 
+from src.adapters.deepagents.lesson_runtime import DeepLessonAgentRuntimeResult
 from src.handlers.commands.lesson.run_deep_agent import LessonRunDeepAgentCommandHandler
 from src.handlers.contracts.lesson import DeepAgentRunCommand
 
@@ -25,7 +26,11 @@ async def test_deep_agent_plan_only():
         )
     )
 
-    handler = LessonRunDeepAgentCommandHandler(db)
+    runtime = SimpleNamespace(
+        execute=AsyncMock(return_value=DeepLessonAgentRuntimeResult(todos=["Generate lesson outline"], actions_taken=[]))
+    )
+
+    handler = LessonRunDeepAgentCommandHandler(db, deep_agent_runtime=runtime)
     result = await handler.run(
         lesson_id=lesson_id,
         instructor_username="teacher1",
@@ -67,7 +72,17 @@ async def test_deep_agent_execute_outline_intent():
         ),
     )
 
-    handler = LessonRunDeepAgentCommandHandler(db)
+    runtime = SimpleNamespace(
+        execute=AsyncMock(
+            return_value=DeepLessonAgentRuntimeResult(
+                todos=["Generate lesson outline"],
+                actions_taken=["Generated outline"],
+                outline=[{"title": "Context", "bullets": ["b1"]}],
+            )
+        )
+    )
+
+    handler = LessonRunDeepAgentCommandHandler(db, deep_agent_runtime=runtime)
     result = await handler.run(
         lesson_id=lesson_id,
         instructor_username="teacher1",
