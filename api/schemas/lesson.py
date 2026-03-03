@@ -28,6 +28,10 @@ class LessonAssessmentRequest(BaseModel):
     question_count: int = Field(default=10, ge=1, le=20)
 
 
+class LessonThematicMapRequest(BaseModel):
+    cross_disciplinary_focus: str = Field(..., min_length=3)
+
+
 class OutlineSectionResponse(BaseModel):
     title: str
     bullets: list[str]
@@ -76,6 +80,18 @@ class LessonAssessmentResponse(BaseModel):
     questions: list[AssessmentQuestionResponse]
 
 
+class ThematicMappingItemResponse(BaseModel):
+    concept: str
+    societal_impact: str
+    explanation: str
+
+
+class LessonThematicMapResponse(BaseModel):
+    lesson_id: UUID
+    cross_disciplinary_focus: str
+    mapping: list[ThematicMappingItemResponse]
+
+
 class LessonResponse(BaseModel):
     id: UUID
     topic: str
@@ -90,6 +106,7 @@ class LessonResponse(BaseModel):
     resource_recommendations: Optional[dict[str, list[ResourceRecommendationResponse]]] = None
     summary: Optional[SummaryResponse] = None
     assessments: Optional[list[AssessmentQuestionResponse]] = None
+    thematic_mapping: Optional[list[ThematicMappingItemResponse]] = None
 
     class Config:
         from_attributes = True

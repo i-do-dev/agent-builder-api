@@ -18,8 +18,8 @@ class LessonSubmitForReviewCommandHandler:
         if not lesson:
             raise NotFoundError("Lesson project not found")
 
-        if lesson.status != LessonStatus.DRAFT:
-            raise ValidationError("Only draft lessons can be submitted for review")
+        if lesson.status not in {LessonStatus.DRAFT, LessonStatus.NEEDS_REVISION}:
+            raise ValidationError("Only draft or needs_revision lessons can be submitted for review")
 
         updated = await self.db.lesson.update_status(lesson.id, LessonStatus.IN_REVIEW, lesson.review_notes)
         return LessonResult(

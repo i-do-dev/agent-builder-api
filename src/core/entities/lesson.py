@@ -9,6 +9,7 @@ class LessonStatus:
     IN_REVIEW = "in_review"
     APPROVED = "approved"
     REJECTED = "rejected"
+    NEEDS_REVISION = "needs_revision"
 
 
 @dataclass
@@ -24,12 +25,13 @@ class LessonProject:
     resource_recommendations: dict[str, list[dict[str, Any]]] | None = field(default=None)
     summary: dict[str, Any] | None = field(default=None)
     assessments: list[dict[str, Any]] | None = field(default=None)
+    thematic_mapping: list[dict[str, Any]] | None = field(default=None)
     created_at: datetime | None = field(default=None)
     updated_at: datetime | None = field(default=None)
 
     def submit_for_review(self) -> None:
-        if self.status != LessonStatus.DRAFT:
-            raise ValueError("Only draft lessons can be submitted for review")
+        if self.status not in {LessonStatus.DRAFT, LessonStatus.NEEDS_REVISION}:
+            raise ValueError("Only draft or needs_revision lessons can be submitted for review")
         self.status = LessonStatus.IN_REVIEW
 
     def approve(self, notes: str | None = None) -> None:

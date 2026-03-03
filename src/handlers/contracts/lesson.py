@@ -38,6 +38,7 @@ class LessonResult:
     resource_recommendations: Optional[dict[str, list["ResourceRecommendationResult"]]] = None
     summary: Optional["SummaryResult"] = None
     assessments: Optional[list["AssessmentQuestionResult"]] = None
+    thematic_mapping: Optional[list["ThematicMappingItemResult"]] = None
 
 
 @dataclass(frozen=True)
@@ -107,3 +108,23 @@ class AssessmentQuestionResult:
 class LessonAssessmentResult:
     lesson_id: UUID
     questions: list[AssessmentQuestionResult]
+
+
+@dataclass(frozen=True)
+class LessonGenerateThematicMapCommand:
+    lesson_id: UUID
+    cross_disciplinary_focus: str
+
+
+@dataclass(frozen=True)
+class ThematicMappingItemResult:
+    concept: str
+    societal_impact: str
+    explanation: str
+
+
+@dataclass(frozen=True)
+class LessonThematicMapResult:
+    lesson_id: UUID
+    cross_disciplinary_focus: str
+    mapping: list[ThematicMappingItemResult]

@@ -5,6 +5,8 @@ from api.schemas.lesson import (
     LessonOutlineResponse,
     LessonResponse,
     LessonSummaryResponse,
+    LessonThematicMapResponse,
+    ThematicMappingItemResponse,
     LessonSubtopicResourcesResponse,
     OutlineSectionResponse,
     ResourceRecommendationResponse,
@@ -16,6 +18,7 @@ from src.handlers.contracts.lesson import (
     LessonOutlineResult,
     LessonResult,
     LessonSummaryResult,
+    LessonThematicMapResult,
     LessonSubtopicResourcesResult,
 )
 
@@ -75,6 +78,17 @@ class LessonApiMapper:
                 for item in result.assessments
             ]
 
+        thematic_mapping = None
+        if result.thematic_mapping is not None:
+            thematic_mapping = [
+                ThematicMappingItemResponse(
+                    concept=item.concept,
+                    societal_impact=item.societal_impact,
+                    explanation=item.explanation,
+                )
+                for item in result.thematic_mapping
+            ]
+
         return LessonResponse(
             id=result.id,
             topic=result.topic,
@@ -89,6 +103,7 @@ class LessonApiMapper:
             resource_recommendations=resource_recommendations,
             summary=summary,
             assessments=assessments,
+            thematic_mapping=thematic_mapping,
         )
 
     @staticmethod
@@ -144,5 +159,20 @@ class LessonApiMapper:
                     rationale=item.rationale,
                 )
                 for item in result.questions
+            ],
+        )
+
+    @staticmethod
+    def thematic_map_result_to_response(result: LessonThematicMapResult) -> LessonThematicMapResponse:
+        return LessonThematicMapResponse(
+            lesson_id=result.lesson_id,
+            cross_disciplinary_focus=result.cross_disciplinary_focus,
+            mapping=[
+                ThematicMappingItemResponse(
+                    concept=item.concept,
+                    societal_impact=item.societal_impact,
+                    explanation=item.explanation,
+                )
+                for item in result.mapping
             ],
         )

@@ -9,6 +9,7 @@ from api.dependencies.lesson import (
     LessonGenerateOutlineHandlerDep,
     LessonQueryHandlerDep,
     LessonSummarizeHandlerDep,
+    LessonThematicMapHandlerDep,
     LessonSubmitReviewHandlerDep,
 )
 from api.schemas.auth import TokenPayload
@@ -21,6 +22,8 @@ from api.schemas.lesson import (
     LessonReviewDecisionRequest,
     LessonSummarizeRequest,
     LessonSummaryResponse,
+    LessonThematicMapRequest,
+    LessonThematicMapResponse,
     LessonSubtopicResourcesRequest,
     LessonSubtopicResourcesResponse,
 )
@@ -178,5 +181,25 @@ async def generate_assessment(
             question_count=request.question_count,
         )
         return LessonApiMapper.assessment_result_to_response(result)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@router.post("/{lesson_id}/themes", response_model=LessonThematicMapResponse)
+async def generate_thematic_mapping(
+    lesson_id: UUID,
+    request: LessonThematicMapRequest,
+    bearer_token: BearerToken,
+    token_svc: TokenSvc,
+    handler: LessonThematicMapHandlerDep,
+) -> LessonThematicMapResponse:
+    token_payload: TokenPayload = token_svc.decode(bearer_token)
+    try:
+        result = await handler.generate(
+            lesson_id=lesson_id,
+            instructor_username=token_payload.sub,
+            cross_disciplinary_focus=request.cross_disciplinary_focus,
+        )
+        return LessonApiMapper.thematic_map_result_to_response(result)
     except NotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc

@@ -161,3 +161,27 @@ class LessonPlannerService:
             )
 
         return questions
+
+    @staticmethod
+    def generate_thematic_mapping(
+        topic: str,
+        instructional_focus: str,
+        cross_disciplinary_focus: str,
+    ) -> list[dict]:
+        return [
+            {
+                "concept": f"{instructional_focus} (technical discovery)",
+                "societal_impact": "Questioning of authority",
+                "explanation": f"Advances in {topic} challenged inherited assumptions and encouraged evidence-based reasoning.",
+            },
+            {
+                "concept": "Empirical methods",
+                "societal_impact": "Intellectual freedom",
+                "explanation": f"The focus on demonstrable evidence supported open inquiry in {cross_disciplinary_focus} discussions.",
+            },
+            {
+                "concept": "Knowledge diffusion",
+                "societal_impact": "Human rights discourse",
+                "explanation": "Broader access to scientific ideas supported arguments for universal dignity and individual agency.",
+            },
+        ]

@@ -28,10 +28,15 @@ class LessonApprovalDecisionCommandHandler:
             raise ValidationError("Approval decisions can be applied only to in-review lessons")
 
         normalized = decision.lower()
+        if normalized in {"reject", "edit"} and (review_notes is None or not review_notes.strip()):
+            raise ValidationError("review_notes is required for reject or edit decisions")
+
         if normalized == "approve":
             next_status = LessonStatus.APPROVED
-        elif normalized in {"reject", "edit"}:
+        elif normalized == "reject":
             next_status = LessonStatus.REJECTED
+        elif normalized == "edit":
+            next_status = LessonStatus.NEEDS_REVISION
         else:
             raise ValidationError("Invalid decision. Allowed: approve, reject, edit")
 

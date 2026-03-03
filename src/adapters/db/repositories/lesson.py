@@ -40,6 +40,7 @@ class LessonProjectRepository(Repository[LessonProjectEntity, LessonProjectModel
         resource_recommendations: dict[str, list[dict]] | None = None,
         summary: dict | None = None,
         assessments: list[dict] | None = None,
+        thematic_mapping: list[dict] | None = None,
     ) -> Optional[LessonProjectEntity]:
         model = await self.get_model(lesson_id)
         if model is None:
@@ -52,5 +53,7 @@ class LessonProjectRepository(Repository[LessonProjectEntity, LessonProjectModel
             model.summary_json = json.dumps(summary)
         if assessments is not None:
             model.assessments_json = json.dumps(assessments)
+        if thematic_mapping is not None:
+            model.thematic_mapping_json = json.dumps(thematic_mapping)
         await self.session.flush([model])
         return await self._model_to_entity(model)

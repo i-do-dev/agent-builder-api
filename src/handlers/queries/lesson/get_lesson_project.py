@@ -6,6 +6,7 @@ from src.handlers.contracts.lesson import (
     OutlineSectionResult,
     ResourceRecommendationResult,
     SummaryResult,
+    ThematicMappingItemResult,
 )
 from src.handlers.errors import NotFoundError
 
@@ -63,6 +64,15 @@ class GetLessonProjectQueryHandler:
             for item in (lesson_assessments or [])
         ]
 
+        thematic_mapping = [
+            ThematicMappingItemResult(
+                concept=item["concept"],
+                societal_impact=item["societal_impact"],
+                explanation=item["explanation"],
+            )
+            for item in (getattr(lesson, "thematic_mapping", None) or [])
+        ]
+
         return LessonResult(
             id=lesson.id,
             topic=lesson.topic,
@@ -77,4 +87,5 @@ class GetLessonProjectQueryHandler:
             resource_recommendations=recommendations,
             summary=summary,
             assessments=assessments,
+            thematic_mapping=thematic_mapping,
         )

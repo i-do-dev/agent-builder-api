@@ -33,6 +33,7 @@ class LessonProjectMapper:
             resource_recommendations=LessonProjectMapper._loads(model.resource_recommendations_json, {}),
             summary=LessonProjectMapper._loads(model.summary_json, {}),
             assessments=LessonProjectMapper._loads(model.assessments_json, []),
+            thematic_mapping=LessonProjectMapper._loads(model.thematic_mapping_json, []),
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
@@ -49,6 +50,7 @@ class LessonProjectMapper:
             "resource_recommendations_json": LessonProjectMapper._dumps(entity.resource_recommendations),
             "summary_json": LessonProjectMapper._dumps(entity.summary),
             "assessments_json": LessonProjectMapper._dumps(entity.assessments),
+            "thematic_mapping_json": LessonProjectMapper._dumps(entity.thematic_mapping),
             "instructor_user_id": entity.instructor_user_id,
         }
         if entity.id is not None:
