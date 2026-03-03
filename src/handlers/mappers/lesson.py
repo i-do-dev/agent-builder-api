@@ -1,15 +1,21 @@
 from api.schemas.lesson import (
+    AssessmentQuestionResponse,
+    LessonAssessmentResponse,
     LessonCreateRequest,
     LessonOutlineResponse,
     LessonResponse,
+    LessonSummaryResponse,
     LessonSubtopicResourcesResponse,
     OutlineSectionResponse,
     ResourceRecommendationResponse,
+    SummaryResponse,
 )
 from src.handlers.contracts.lesson import (
+    LessonAssessmentResult,
     LessonCreateCommand,
     LessonOutlineResult,
     LessonResult,
+    LessonSummaryResult,
     LessonSubtopicResourcesResult,
 )
 
@@ -48,6 +54,27 @@ class LessonApiMapper:
                 for subtopic, items in result.resource_recommendations.items()
             }
 
+        summary = None
+        if result.summary is not None:
+            summary = SummaryResponse(
+                source_url=result.summary.source_url,
+                key_points=result.summary.key_points,
+                extracted_parameters=result.summary.extracted_parameters,
+                concise_summary=result.summary.concise_summary,
+            )
+
+        assessments = None
+        if result.assessments is not None:
+            assessments = [
+                AssessmentQuestionResponse(
+                    question=item.question,
+                    options=item.options,
+                    answer=item.answer,
+                    rationale=item.rationale,
+                )
+                for item in result.assessments
+            ]
+
         return LessonResponse(
             id=result.id,
             topic=result.topic,
@@ -60,6 +87,8 @@ class LessonApiMapper:
             updated_at=result.updated_at,
             outline=outline,
             resource_recommendations=resource_recommendations,
+            summary=summary,
+            assessments=assessments,
         )
 
     @staticmethod
@@ -88,5 +117,32 @@ class LessonApiMapper:
                     rationale=item.rationale,
                 )
                 for item in result.resources
+            ],
+        )
+
+    @staticmethod
+    def summary_result_to_response(result: LessonSummaryResult) -> LessonSummaryResponse:
+        return LessonSummaryResponse(
+            lesson_id=result.lesson_id,
+            summary=SummaryResponse(
+                source_url=result.summary.source_url,
+                key_points=result.summary.key_points,
+                extracted_parameters=result.summary.extracted_parameters,
+                concise_summary=result.summary.concise_summary,
+            ),
+        )
+
+    @staticmethod
+    def assessment_result_to_response(result: LessonAssessmentResult) -> LessonAssessmentResponse:
+        return LessonAssessmentResponse(
+            lesson_id=result.lesson_id,
+            questions=[
+                AssessmentQuestionResponse(
+                    question=item.question,
+                    options=item.options,
+                    answer=item.answer,
+                    rationale=item.rationale,
+                )
+                for item in result.questions
             ],
         )

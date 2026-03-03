@@ -31,6 +31,8 @@ class LessonProjectMapper:
             instructor_user_id=model.instructor_user_id,
             outline=LessonProjectMapper._loads(model.outline_json, []),
             resource_recommendations=LessonProjectMapper._loads(model.resource_recommendations_json, {}),
+            summary=LessonProjectMapper._loads(model.summary_json, {}),
+            assessments=LessonProjectMapper._loads(model.assessments_json, []),
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
@@ -45,6 +47,8 @@ class LessonProjectMapper:
             "review_notes": entity.review_notes,
             "outline_json": LessonProjectMapper._dumps(entity.outline),
             "resource_recommendations_json": LessonProjectMapper._dumps(entity.resource_recommendations),
+            "summary_json": LessonProjectMapper._dumps(entity.summary),
+            "assessments_json": LessonProjectMapper._dumps(entity.assessments),
             "instructor_user_id": entity.instructor_user_id,
         }
         if entity.id is not None:

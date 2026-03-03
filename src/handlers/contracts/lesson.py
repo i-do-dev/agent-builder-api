@@ -36,6 +36,8 @@ class LessonResult:
     updated_at: Optional[datetime]
     outline: Optional[list["OutlineSectionResult"]] = None
     resource_recommendations: Optional[dict[str, list["ResourceRecommendationResult"]]] = None
+    summary: Optional["SummaryResult"] = None
+    assessments: Optional[list["AssessmentQuestionResult"]] = None
 
 
 @dataclass(frozen=True)
@@ -64,3 +66,44 @@ class LessonSubtopicResourcesResult:
     lesson_id: UUID
     subtopic: str
     resources: list[ResourceRecommendationResult]
+
+
+@dataclass(frozen=True)
+class LessonSummarizeContentCommand:
+    lesson_id: UUID
+    source_text: str | None = None
+    source_url: str | None = None
+
+
+@dataclass(frozen=True)
+class SummaryResult:
+    source_url: str | None
+    key_points: list[str]
+    extracted_parameters: list[str]
+    concise_summary: str
+
+
+@dataclass(frozen=True)
+class LessonSummaryResult:
+    lesson_id: UUID
+    summary: SummaryResult
+
+
+@dataclass(frozen=True)
+class LessonGenerateAssessmentCommand:
+    lesson_id: UUID
+    question_count: int = 10
+
+
+@dataclass(frozen=True)
+class AssessmentQuestionResult:
+    question: str
+    options: list[str]
+    answer: str
+    rationale: str
+
+
+@dataclass(frozen=True)
+class LessonAssessmentResult:
+    lesson_id: UUID
+    questions: list[AssessmentQuestionResult]

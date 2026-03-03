@@ -38,6 +38,8 @@ class LessonProjectRepository(Repository[LessonProjectEntity, LessonProjectModel
         lesson_id: UUID,
         outline: list[dict] | None = None,
         resource_recommendations: dict[str, list[dict]] | None = None,
+        summary: dict | None = None,
+        assessments: list[dict] | None = None,
     ) -> Optional[LessonProjectEntity]:
         model = await self.get_model(lesson_id)
         if model is None:
@@ -46,5 +48,9 @@ class LessonProjectRepository(Repository[LessonProjectEntity, LessonProjectModel
             model.outline_json = json.dumps(outline)
         if resource_recommendations is not None:
             model.resource_recommendations_json = json.dumps(resource_recommendations)
+        if summary is not None:
+            model.summary_json = json.dumps(summary)
+        if assessments is not None:
+            model.assessments_json = json.dumps(assessments)
         await self.session.flush([model])
         return await self._model_to_entity(model)

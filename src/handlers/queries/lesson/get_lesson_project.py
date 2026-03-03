@@ -1,9 +1,11 @@
 from uuid import UUID
 from src.adapters.db.uow import UnitOfWork
 from src.handlers.contracts.lesson import (
+    AssessmentQuestionResult,
     LessonResult,
     OutlineSectionResult,
     ResourceRecommendationResult,
+    SummaryResult,
 )
 from src.handlers.errors import NotFoundError
 
@@ -39,6 +41,28 @@ class GetLessonProjectQueryHandler:
                 for item in items
             ]
 
+        lesson_summary = getattr(lesson, "summary", None)
+        lesson_assessments = getattr(lesson, "assessments", None)
+
+        summary = None
+        if lesson_summary:
+            summary = SummaryResult(
+                source_url=lesson_summary.get("source_url"),
+                key_points=lesson_summary.get("key_points", []),
+                extracted_parameters=lesson_summary.get("extracted_parameters", []),
+                concise_summary=lesson_summary.get("concise_summary", ""),
+            )
+
+        assessments = [
+            AssessmentQuestionResult(
+                question=item["question"],
+                options=item["options"],
+                answer=item["answer"],
+                rationale=item["rationale"],
+            )
+            for item in (lesson_assessments or [])
+        ]
+
         return LessonResult(
             id=lesson.id,
             topic=lesson.topic,
@@ -51,4 +75,6 @@ class GetLessonProjectQueryHandler:
             updated_at=lesson.updated_at,
             outline=outline,
             resource_recommendations=recommendations,
+            summary=summary,
+            assessments=assessments,
         )

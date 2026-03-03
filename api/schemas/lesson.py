@@ -19,6 +19,15 @@ class LessonSubtopicResourcesRequest(BaseModel):
     subtopic: str = Field(..., min_length=2, max_length=255)
 
 
+class LessonSummarizeRequest(BaseModel):
+    source_text: Optional[str] = None
+    source_url: Optional[str] = None
+
+
+class LessonAssessmentRequest(BaseModel):
+    question_count: int = Field(default=10, ge=1, le=20)
+
+
 class OutlineSectionResponse(BaseModel):
     title: str
     bullets: list[str]
@@ -43,6 +52,30 @@ class LessonSubtopicResourcesResponse(BaseModel):
     resources: list[ResourceRecommendationResponse]
 
 
+class SummaryResponse(BaseModel):
+    source_url: Optional[str] = None
+    key_points: list[str]
+    extracted_parameters: list[str]
+    concise_summary: str
+
+
+class LessonSummaryResponse(BaseModel):
+    lesson_id: UUID
+    summary: SummaryResponse
+
+
+class AssessmentQuestionResponse(BaseModel):
+    question: str
+    options: list[str]
+    answer: str
+    rationale: str
+
+
+class LessonAssessmentResponse(BaseModel):
+    lesson_id: UUID
+    questions: list[AssessmentQuestionResponse]
+
+
 class LessonResponse(BaseModel):
     id: UUID
     topic: str
@@ -55,6 +88,8 @@ class LessonResponse(BaseModel):
     updated_at: Optional[datetime] = None
     outline: Optional[list[OutlineSectionResponse]] = None
     resource_recommendations: Optional[dict[str, list[ResourceRecommendationResponse]]] = None
+    summary: Optional[SummaryResponse] = None
+    assessments: Optional[list[AssessmentQuestionResponse]] = None
 
     class Config:
         from_attributes = True

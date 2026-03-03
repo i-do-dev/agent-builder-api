@@ -22,6 +22,8 @@ class LessonProject:
     instructor_user_id: UUID | None = field(default=None)
     outline: list[dict[str, Any]] | None = field(default=None)
     resource_recommendations: dict[str, list[dict[str, Any]]] | None = field(default=None)
+    summary: dict[str, Any] | None = field(default=None)
+    assessments: list[dict[str, Any]] | None = field(default=None)
     created_at: datetime | None = field(default=None)
     updated_at: datetime | None = field(default=None)
 

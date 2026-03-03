@@ -80,3 +80,84 @@ class LessonPlannerService:
                 "rationale": "Supplemental multimedia for engagement and recap",
             },
         ]
+
+    @staticmethod
+    def summarize_content(
+        topic: str,
+        instructional_focus: str,
+        source_text: str | None = None,
+        source_url: str | None = None,
+    ) -> dict:
+        text = (source_text or "").strip()
+        lowered = text.lower()
+
+        default_points = [
+            f"Focus area identified: {instructional_focus}",
+            f"Topic context maintained: {topic}",
+            "Synthesis structured for instructional use",
+        ]
+
+        keywords = [
+            token.strip(".,:;!?")
+            for token in lowered.split()
+            if len(token.strip(".,:;!?")) > 6
+        ]
+        extracted_parameters = sorted(list(dict.fromkeys(keywords[:6])))
+
+        if text:
+            sentences = [s.strip() for s in text.replace("\n", " ").split(".") if s.strip()]
+            key_points = sentences[:3] if sentences else default_points
+            concise_summary = (
+                " ".join(sentences[:2])[:400]
+                if sentences
+                else f"Summary prepared for {topic} with emphasis on {instructional_focus}."
+            )
+        else:
+            key_points = default_points
+            concise_summary = f"Summary prepared for {topic} with emphasis on {instructional_focus}."
+
+        if not extracted_parameters:
+            extracted_parameters = [instructional_focus, topic]
+
+        return {
+            "source_url": source_url,
+            "key_points": key_points,
+            "extracted_parameters": extracted_parameters,
+            "concise_summary": concise_summary,
+        }
+
+    @staticmethod
+    def generate_assessment(
+        topic: str,
+        audience: str,
+        instructional_focus: str,
+        summary: dict | None = None,
+        question_count: int = 10,
+    ) -> list[dict]:
+        count = max(1, min(question_count, 20))
+        summary_points = (summary or {}).get("key_points") or [
+            f"Core concept in {topic}",
+            f"Instructional emphasis: {instructional_focus}",
+        ]
+
+        questions: list[dict] = []
+        for index in range(count):
+            anchor = summary_points[index % len(summary_points)]
+            question_number = index + 1
+            correct_option = f"{anchor}"
+            options = [
+                correct_option,
+                f"Unrelated detail for {topic}",
+                f"Incorrect application for {audience}",
+                "None of the above",
+            ]
+            questions.append(
+                {
+                    "question": f"Q{question_number}. Which statement best matches the lesson focus for {topic}?",
+                    "options": options,
+                    "answer": correct_option,
+                    "rationale": f"This aligns with the lesson focus: {instructional_focus}.",
+                }
+            )
+
+        return questions

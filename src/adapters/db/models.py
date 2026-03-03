@@ -96,6 +96,8 @@ class LessonProject(Base):
     review_notes = Column(Text, nullable=True)
     outline_json = Column(Text, nullable=True)
     resource_recommendations_json = Column(Text, nullable=True)
+    summary_json = Column(Text, nullable=True)
+    assessments_json = Column(Text, nullable=True)
     instructor_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
     updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
