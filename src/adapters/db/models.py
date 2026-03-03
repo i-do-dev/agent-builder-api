@@ -82,3 +82,20 @@ class TopicInstruction(Base):
         back_populates="instructions",
         foreign_keys=[topic_id]
     )
+
+
+class LessonProject(Base):
+    """SQLAlchemy LessonProject model"""
+
+    __tablename__ = "lesson_projects"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    topic = Column(String, nullable=False)
+    audience = Column(String, nullable=False)
+    instructional_focus = Column(Text, nullable=False)
+    status = Column(String, nullable=False, server_default=text("'draft'"))
+    review_notes = Column(Text, nullable=True)
+    outline_json = Column(Text, nullable=True)
+    resource_recommendations_json = Column(Text, nullable=True)
+    instructor_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))

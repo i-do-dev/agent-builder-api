@@ -1,4 +1,4 @@
-from src.adapters.db.models import Agent, Topic, TopicInstruction, User
+from src.adapters.db.models import Agent, Topic, TopicInstruction, User, LessonProject
 
 def test_user_model():
     user = User(
@@ -68,3 +68,24 @@ def test_topic_instructions_model():
     assert topic_instruction.topic is None
     assert hasattr(topic_instruction, 'created_at')
     assert topic_instruction.created_at == "2023-01-01T00:00:00Z"
+
+
+def test_lesson_project_model():
+    lesson_project = LessonProject(
+        topic="Scientific Revolution",
+        audience="high school",
+        instructional_focus="major inventions",
+        status="draft",
+        review_notes="",
+        instructor_user_id="123e4567-e89b-12d3-a456-426614174000",
+        created_at="2023-01-01T00:00:00Z",
+        updated_at="2023-01-01T00:00:00Z",
+    )
+
+    assert lesson_project.topic == "Scientific Revolution"
+    assert lesson_project.audience == "high school"
+    assert lesson_project.instructional_focus == "major inventions"
+    assert lesson_project.status == "draft"
+    assert lesson_project.instructor_user_id == "123e4567-e89b-12d3-a456-426614174000"
+    assert lesson_project.created_at == "2023-01-01T00:00:00Z"
+    assert lesson_project.updated_at == "2023-01-01T00:00:00Z"
