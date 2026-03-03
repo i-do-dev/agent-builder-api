@@ -5,6 +5,7 @@ from api.dependencies.lesson import (
     LessonAssessmentHandlerDep,
     LessonApprovalHandlerDep,
     LessonCreateHandlerDep,
+    LessonDeepAgentHandlerDep,
     LessonExpandSubtopicResourcesHandlerDep,
     LessonGenerateOutlineHandlerDep,
     LessonQueryHandlerDep,
@@ -12,19 +13,23 @@ from api.dependencies.lesson import (
     LessonThematicMapHandlerDep,
     LessonSubmitReviewHandlerDep,
 )
-from api.schemas.auth import TokenPayload
-from api.schemas.lesson import (
+from api.contracts.token import TokenPayload
+from api.contracts.requests.lesson import (
+    DeepAgentRunRequest,
     LessonAssessmentRequest,
-    LessonAssessmentResponse,
     LessonCreateRequest,
-    LessonOutlineResponse,
-    LessonResponse,
     LessonReviewDecisionRequest,
     LessonSummarizeRequest,
-    LessonSummaryResponse,
     LessonThematicMapRequest,
-    LessonThematicMapResponse,
     LessonSubtopicResourcesRequest,
+)
+from api.contracts.responses.lesson import (
+    DeepAgentRunResponse,
+    LessonAssessmentResponse,
+    LessonOutlineResponse,
+    LessonResponse,
+    LessonSummaryResponse,
+    LessonThematicMapResponse,
     LessonSubtopicResourcesResponse,
 )
 from src.handlers.errors import NotFoundError, ValidationError
@@ -201,5 +206,22 @@ async def generate_thematic_mapping(
             cross_disciplinary_focus=request.cross_disciplinary_focus,
         )
         return LessonApiMapper.thematic_map_result_to_response(result)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@router.post("/{lesson_id}/deep-agent/run", response_model=DeepAgentRunResponse)
+async def run_deep_agent(
+    lesson_id: UUID,
+    request: DeepAgentRunRequest,
+    bearer_token: BearerToken,
+    token_svc: TokenSvc,
+    handler: LessonDeepAgentHandlerDep,
+) -> DeepAgentRunResponse:
+    token_payload: TokenPayload = token_svc.decode(bearer_token)
+    command = LessonApiMapper.request_to_deep_agent_command(request)
+    try:
+        result = await handler.run(lesson_id=lesson_id, instructor_username=token_payload.sub, command=command)
+        return LessonApiMapper.deep_agent_result_to_response(result)
     except NotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc

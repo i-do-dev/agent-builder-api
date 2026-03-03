@@ -9,6 +9,7 @@ from src.handlers.commands.lesson.expand_subtopic_resources import LessonExpandS
 from src.handlers.commands.lesson.summarize_content import LessonSummarizeContentCommandHandler
 from src.handlers.commands.lesson.generate_assessment import LessonGenerateAssessmentCommandHandler
 from src.handlers.commands.lesson.generate_thematic_map import LessonGenerateThematicMapCommandHandler
+from src.handlers.commands.lesson.run_deep_agent import LessonRunDeepAgentCommandHandler
 from src.handlers.queries.lesson.get_lesson_project import GetLessonProjectQueryHandler
 
 
@@ -48,6 +49,10 @@ def get_lesson_thematic_map_handler(db: Db) -> LessonGenerateThematicMapCommandH
     return LessonGenerateThematicMapCommandHandler(db)
 
 
+def get_lesson_deep_agent_handler(db: Db) -> LessonRunDeepAgentCommandHandler:
+    return LessonRunDeepAgentCommandHandler(db)
+
+
 LessonCreateHandlerDep = Annotated[LessonCreateCommandHandler, Depends(get_lesson_create_handler)]
 LessonSubmitReviewHandlerDep = Annotated[LessonSubmitForReviewCommandHandler, Depends(get_lesson_submit_review_handler)]
 LessonApprovalHandlerDep = Annotated[LessonApprovalDecisionCommandHandler, Depends(get_lesson_approval_handler)]
@@ -60,3 +65,4 @@ LessonExpandSubtopicResourcesHandlerDep = Annotated[
 LessonSummarizeHandlerDep = Annotated[LessonSummarizeContentCommandHandler, Depends(get_lesson_summarize_handler)]
 LessonAssessmentHandlerDep = Annotated[LessonGenerateAssessmentCommandHandler, Depends(get_lesson_assessment_handler)]
 LessonThematicMapHandlerDep = Annotated[LessonGenerateThematicMapCommandHandler, Depends(get_lesson_thematic_map_handler)]
+LessonDeepAgentHandlerDep = Annotated[LessonRunDeepAgentCommandHandler, Depends(get_lesson_deep_agent_handler)]

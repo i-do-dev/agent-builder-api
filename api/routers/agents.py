@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, status
 from api.dependencies.agent import Agent
 from api.dependencies.common import BearerToken, TokenSvc
-from api.schemas.agent import AgentCreateRequest, AgentResponse
-from api.schemas.auth import TokenPayload
+from api.contracts.requests.agent import AgentCreateRequest
+from api.contracts.responses.agent import AgentResponse
+from api.contracts.token import TokenPayload
 from src.handlers.errors import NotFoundError
 from src.handlers.mappers.agent import AgentApiMapper
 

@@ -128,3 +128,28 @@ class LessonThematicMapResult:
     lesson_id: UUID
     cross_disciplinary_focus: str
     mapping: list[ThematicMappingItemResult]
+
+
+@dataclass(frozen=True)
+class DeepAgentRunCommand:
+    prompt: str
+    subtopic: Optional[str] = None
+    source_text: Optional[str] = None
+    source_url: Optional[str] = None
+    question_count: int = 10
+    cross_disciplinary_focus: Optional[str] = None
+    execute: bool = True
+
+
+@dataclass(frozen=True)
+class DeepAgentRunResult:
+    lesson_id: UUID
+    intent: str
+    todos: list[str]
+    executed: bool
+    actions_taken: list[str]
+    outline_sections: int = 0
+    resource_count: int = 0
+    summary_generated: bool = False
+    assessment_count: int = 0
+    thematic_mapping_count: int = 0

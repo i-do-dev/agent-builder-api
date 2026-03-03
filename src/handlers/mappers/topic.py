@@ -1,4 +1,5 @@
-from api.schemas.topic import TopicCreateRequest, TopicResponse
+from api.contracts.requests.topic import TopicCreateRequest
+from api.contracts.responses.topic import TopicResponse
 from src.handlers.contracts.topic import TopicCreateCommand, TopicResult
 
 

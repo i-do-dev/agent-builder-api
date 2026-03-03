@@ -1,35 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from uuid import UUID
-from typing import Optional, Literal
-
-
-class LessonCreateRequest(BaseModel):
-    topic: str = Field(..., min_length=3, max_length=255)
-    audience: str = Field(..., min_length=2, max_length=128)
-    instructional_focus: str = Field(..., min_length=3)
-
-
-class LessonReviewDecisionRequest(BaseModel):
-    decision: Literal["approve", "reject", "edit"]
-    review_notes: Optional[str] = None
-
-
-class LessonSubtopicResourcesRequest(BaseModel):
-    subtopic: str = Field(..., min_length=2, max_length=255)
-
-
-class LessonSummarizeRequest(BaseModel):
-    source_text: Optional[str] = None
-    source_url: Optional[str] = None
-
-
-class LessonAssessmentRequest(BaseModel):
-    question_count: int = Field(default=10, ge=1, le=20)
-
-
-class LessonThematicMapRequest(BaseModel):
-    cross_disciplinary_focus: str = Field(..., min_length=3)
+from typing import Optional
 
 
 class OutlineSectionResponse(BaseModel):
@@ -90,6 +62,19 @@ class LessonThematicMapResponse(BaseModel):
     lesson_id: UUID
     cross_disciplinary_focus: str
     mapping: list[ThematicMappingItemResponse]
+
+
+class DeepAgentRunResponse(BaseModel):
+    lesson_id: UUID
+    intent: str
+    todos: list[str]
+    executed: bool
+    actions_taken: list[str]
+    outline_sections: int
+    resource_count: int
+    summary_generated: bool
+    assessment_count: int
+    thematic_mapping_count: int
 
 
 class LessonResponse(BaseModel):

@@ -1,26 +1,18 @@
 from pydantic import BaseModel
 from uuid import UUID
 from typing import List, Optional
-from api.schemas.topic import TopicCreateRequest, TopicResponse
+from api.contracts.responses.topic import TopicResponse
 
-#  Agent Base Schema
+
 class AgentBase(BaseModel):
     name: str
     api_name: str
     description: Optional[str] = None
     role: Optional[str] = None
     organization: Optional[str] = None
-    user_type: Optional[str] = None  # Dropdown value
-    topics: Optional[List[TopicCreateRequest]] = []
+    user_type: Optional[str] = None
 
-# Schema for creating an agent
-class AgentCreateRequest(AgentBase):
-    pass
 
-class AgentUpdateRequest(AgentBase):
-    pass    
-
-#  Response schema for an agent
 class AgentResponse(AgentBase):
     id: UUID
     modified_by: Optional[UUID] = None
@@ -29,5 +21,5 @@ class AgentResponse(AgentBase):
     class Config:
         from_attributes = True
 
-#  Rebuild models to resolve forward references
+
 AgentResponse.model_rebuild()

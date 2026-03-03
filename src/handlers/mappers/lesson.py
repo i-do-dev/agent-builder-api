@@ -1,7 +1,11 @@
-from api.schemas.lesson import (
-    AssessmentQuestionResponse,
-    LessonAssessmentResponse,
+from api.contracts.requests.lesson import (
+    DeepAgentRunRequest,
     LessonCreateRequest,
+)
+from api.contracts.responses.lesson import (
+    AssessmentQuestionResponse,
+    DeepAgentRunResponse,
+    LessonAssessmentResponse,
     LessonOutlineResponse,
     LessonResponse,
     LessonSummaryResponse,
@@ -13,6 +17,8 @@ from api.schemas.lesson import (
     SummaryResponse,
 )
 from src.handlers.contracts.lesson import (
+    DeepAgentRunCommand,
+    DeepAgentRunResult,
     LessonAssessmentResult,
     LessonCreateCommand,
     LessonOutlineResult,
@@ -24,6 +30,18 @@ from src.handlers.contracts.lesson import (
 
 
 class LessonApiMapper:
+    @staticmethod
+    def request_to_deep_agent_command(request: DeepAgentRunRequest) -> DeepAgentRunCommand:
+        return DeepAgentRunCommand(
+            prompt=request.prompt,
+            subtopic=request.subtopic,
+            source_text=request.source_text,
+            source_url=request.source_url,
+            question_count=request.question_count,
+            cross_disciplinary_focus=request.cross_disciplinary_focus,
+            execute=request.execute,
+        )
+
     @staticmethod
     def request_to_create_command(request: LessonCreateRequest) -> LessonCreateCommand:
         return LessonCreateCommand(
@@ -175,4 +193,19 @@ class LessonApiMapper:
                 )
                 for item in result.mapping
             ],
+        )
+
+    @staticmethod
+    def deep_agent_result_to_response(result: DeepAgentRunResult) -> DeepAgentRunResponse:
+        return DeepAgentRunResponse(
+            lesson_id=result.lesson_id,
+            intent=result.intent,
+            todos=result.todos,
+            executed=result.executed,
+            actions_taken=result.actions_taken,
+            outline_sections=result.outline_sections,
+            resource_count=result.resource_count,
+            summary_generated=result.summary_generated,
+            assessment_count=result.assessment_count,
+            thematic_mapping_count=result.thematic_mapping_count,
         )

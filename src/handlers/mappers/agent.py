@@ -1,4 +1,5 @@
-from api.schemas.agent import AgentCreateRequest, AgentResponse
+from api.contracts.requests.agent import AgentCreateRequest
+from api.contracts.responses.agent import AgentResponse
 from src.handlers.contracts.agent import AgentCreateCommand, AgentResult
 
 
