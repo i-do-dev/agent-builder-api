@@ -7,6 +7,7 @@ from src.core.entities.lesson import LessonStatus
 from src.handlers.commands.lesson.create_lesson_project import LessonCreateCommandHandler
 from src.handlers.commands.lesson.submit_for_review import LessonSubmitForReviewCommandHandler
 from src.handlers.commands.lesson.apply_approval_decision import LessonApprovalDecisionCommandHandler
+from src.handlers.queries.lesson.list_lessons import ListLessonsQueryHandler
 from src.handlers.contracts.lesson import LessonCreateCommand
 from src.handlers.errors import NotFoundError, ValidationError
 
@@ -125,3 +126,65 @@ async def test_apply_approval_decision_instructor_not_found():
             decision="approve",
             instructor_username="missing-teacher",
         )
+
+
+@pytest.mark.asyncio
+async def test_list_lessons_paginated_success():
+    instructor_id = uuid4()
+    lesson_1 = uuid4()
+    lesson_2 = uuid4()
+
+    db = SimpleNamespace()
+    db.user = SimpleNamespace(get_by_username=AsyncMock(return_value=SimpleNamespace(id=instructor_id)))
+    db.lesson = SimpleNamespace(
+        list_for_instructor=AsyncMock(
+            return_value=(
+                [
+                    SimpleNamespace(
+                        id=lesson_1,
+                        topic="Scientific Revolution",
+                        audience="high school",
+                        instructional_focus="major inventions",
+                        status=LessonStatus.DRAFT,
+                        instructor_user_id=instructor_id,
+                        review_notes=None,
+                        created_at=None,
+                        updated_at=None,
+                    ),
+                    SimpleNamespace(
+                        id=lesson_2,
+                        topic="Industrial Revolution",
+                        audience="high school",
+                        instructional_focus="social impact",
+                        status=LessonStatus.IN_REVIEW,
+                        instructor_user_id=instructor_id,
+                        review_notes="pending",
+                        created_at=None,
+                        updated_at=None,
+                    ),
+                ],
+                7,
+            )
+        )
+    )
+
+    handler = ListLessonsQueryHandler(db)
+    result = await handler.list(instructor_username="teacher1", page=2, page_size=2)
+
+    assert result.page == 2
+    assert result.page_size == 2
+    assert result.total == 7
+    assert result.total_pages == 4
+    assert len(result.lessons) == 2
+
+
+@pytest.mark.asyncio
+async def test_list_lessons_instructor_not_found():
+    db = SimpleNamespace()
+    db.user = SimpleNamespace(get_by_username=AsyncMock(return_value=None))
+    db.lesson = SimpleNamespace(list_for_instructor=AsyncMock())
+
+    handler = ListLessonsQueryHandler(db)
+
+    with pytest.raises(NotFoundError):
+        await handler.list(instructor_username="missing", page=1, page_size=10)

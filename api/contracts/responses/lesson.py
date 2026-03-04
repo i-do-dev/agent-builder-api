@@ -95,3 +95,11 @@ class LessonResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class LessonListResponse(BaseModel):
+    lessons: list[LessonResponse]
+    page: int
+    page_size: int
+    total: int
+    total_pages: int

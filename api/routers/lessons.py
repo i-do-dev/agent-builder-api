@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 from api.dependencies.common import BearerToken, TokenSvc
 from api.dependencies.lesson import (
     LessonAssessmentHandlerDep,
@@ -8,6 +8,7 @@ from api.dependencies.lesson import (
     LessonDeepAgentHandlerDep,
     LessonExpandSubtopicResourcesHandlerDep,
     LessonGenerateOutlineHandlerDep,
+    LessonListQueryHandlerDep,
     LessonQueryHandlerDep,
     LessonSummarizeHandlerDep,
     LessonThematicMapHandlerDep,
@@ -26,6 +27,7 @@ from api.contracts.requests.lesson import (
 from api.contracts.responses.lesson import (
     DeepAgentRunResponse,
     LessonAssessmentResponse,
+    LessonListResponse,
     LessonOutlineResponse,
     LessonResponse,
     LessonSummaryResponse,
@@ -39,6 +41,26 @@ router = APIRouter(
     prefix="/lessons",
     tags=["lessons"],
 )
+
+
+@router.get("/", response_model=LessonListResponse)
+async def list_lessons(
+    bearer_token: BearerToken,
+    token_svc: TokenSvc,
+    query: LessonListQueryHandlerDep,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=100),
+) -> LessonListResponse:
+    token_payload: TokenPayload = token_svc.decode(bearer_token)
+    try:
+        result = await query.list(
+            instructor_username=token_payload.sub,
+            page=page,
+            page_size=page_size,
+        )
+        return LessonApiMapper.list_result_to_response(result)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
 @router.post("/", response_model=LessonResponse)

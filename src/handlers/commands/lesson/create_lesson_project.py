@@ -8,26 +8,26 @@ class LessonCreateCommandHandler:
     def __init__(self, db: UnitOfWork):
         self.db = db
 
-    async def create_on_request(self, command: LessonCreateCommand, instructor_username: str) -> LessonResult:
+    async def create_on_request(self, lesson_command: LessonCreateCommand, instructor_username: str) -> LessonResult:
         instructor = await self.db.user.get_by_username(instructor_username)
         if not instructor:
             raise NotFoundError("Instructor not found")
 
         lesson = LessonProject(
-            topic=command.topic,
-            audience=command.audience,
-            instructional_focus=command.instructional_focus,
+            topic=lesson_command.topic,
+            audience=lesson_command.audience,
+            instructional_focus=lesson_command.instructional_focus,
             instructor_user_id=instructor.id,
         )
-        created = await self.db.lesson.add(lesson)
+        lesson_created = await self.db.lesson.add(lesson)
         return LessonResult(
-            id=created.id,
-            topic=created.topic,
-            audience=created.audience,
-            instructional_focus=created.instructional_focus,
-            status=created.status,
-            instructor_user_id=created.instructor_user_id,
-            review_notes=created.review_notes,
-            created_at=created.created_at,
-            updated_at=created.updated_at,
+            id=lesson_created.id,
+            topic=lesson_created.topic,
+            audience=lesson_created.audience,
+            instructional_focus=lesson_created.instructional_focus,
+            status=lesson_created.status,
+            instructor_user_id=lesson_created.instructor_user_id,
+            review_notes=lesson_created.review_notes,
+            created_at=lesson_created.created_at,
+            updated_at=lesson_created.updated_at,
         )

@@ -6,6 +6,7 @@ from api.contracts.responses.lesson import (
     AssessmentQuestionResponse,
     DeepAgentRunResponse,
     LessonAssessmentResponse,
+    LessonListResponse,
     LessonOutlineResponse,
     LessonResponse,
     LessonSummaryResponse,
@@ -21,6 +22,7 @@ from src.handlers.contracts.lesson import (
     DeepAgentRunResult,
     LessonAssessmentResult,
     LessonCreateCommand,
+    LessonListResult,
     LessonOutlineResult,
     LessonResult,
     LessonSummaryResult,
@@ -122,6 +124,16 @@ class LessonApiMapper:
             summary=summary,
             assessments=assessments,
             thematic_mapping=thematic_mapping,
+        )
+
+    @staticmethod
+    def list_result_to_response(result: LessonListResult) -> LessonListResponse:
+        return LessonListResponse(
+            lessons=[LessonApiMapper.result_to_response(item) for item in result.lessons],
+            page=result.page,
+            page_size=result.page_size,
+            total=result.total,
+            total_pages=result.total_pages,
         )
 
     @staticmethod

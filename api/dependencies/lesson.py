@@ -11,6 +11,7 @@ from src.handlers.commands.lesson.generate_assessment import LessonGenerateAsses
 from src.handlers.commands.lesson.generate_thematic_map import LessonGenerateThematicMapCommandHandler
 from src.handlers.commands.lesson.run_deep_agent import LessonRunDeepAgentCommandHandler
 from src.handlers.queries.lesson.get_lesson_project import GetLessonProjectQueryHandler
+from src.handlers.queries.lesson.list_lessons import ListLessonsQueryHandler
 
 
 def get_lesson_create_handler(db: Db) -> LessonCreateCommandHandler:
@@ -27,6 +28,10 @@ def get_lesson_approval_handler(db: Db) -> LessonApprovalDecisionCommandHandler:
 
 def get_lesson_project_query_handler(db: Db) -> GetLessonProjectQueryHandler:
     return GetLessonProjectQueryHandler(db)
+
+
+def get_lesson_list_query_handler(db: Db) -> ListLessonsQueryHandler:
+    return ListLessonsQueryHandler(db)
 
 
 def get_lesson_generate_outline_handler(db: Db) -> LessonGenerateOutlineCommandHandler:
@@ -57,6 +62,7 @@ LessonCreateHandlerDep = Annotated[LessonCreateCommandHandler, Depends(get_lesso
 LessonSubmitReviewHandlerDep = Annotated[LessonSubmitForReviewCommandHandler, Depends(get_lesson_submit_review_handler)]
 LessonApprovalHandlerDep = Annotated[LessonApprovalDecisionCommandHandler, Depends(get_lesson_approval_handler)]
 LessonQueryHandlerDep = Annotated[GetLessonProjectQueryHandler, Depends(get_lesson_project_query_handler)]
+LessonListQueryHandlerDep = Annotated[ListLessonsQueryHandler, Depends(get_lesson_list_query_handler)]
 LessonGenerateOutlineHandlerDep = Annotated[LessonGenerateOutlineCommandHandler, Depends(get_lesson_generate_outline_handler)]
 LessonExpandSubtopicResourcesHandlerDep = Annotated[
     LessonExpandSubtopicResourcesCommandHandler,

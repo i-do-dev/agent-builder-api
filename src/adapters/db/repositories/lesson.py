@@ -1,6 +1,7 @@
 from typing import Optional
 from uuid import UUID
 import json
+from sqlalchemy import desc, select
 from src.adapters.db.repositories.base import Repository
 from src.adapters.db.models import LessonProject as LessonProjectModel
 from src.core.entities.lesson import LessonProject as LessonProjectEntity
@@ -18,6 +19,28 @@ class LessonProjectRepository(Repository[LessonProjectEntity, LessonProjectModel
 
     async def get_for_instructor(self, lesson_id: UUID, instructor_user_id: UUID) -> Optional[LessonProjectEntity]:
         return await self.get_by(id=lesson_id, instructor_user_id=instructor_user_id)
+
+    async def list_for_instructor(
+        self,
+        instructor_user_id: UUID,
+        page: int,
+        page_size: int,
+    ) -> tuple[list[LessonProjectEntity], int]:
+        offset = (page - 1) * page_size
+
+        total = await self.count(instructor_user_id=instructor_user_id)
+
+        statement = (
+            select(self.model)
+            .where(self.model.instructor_user_id == instructor_user_id)
+            .order_by(desc(self.model.updated_at))
+            .offset(offset)
+            .limit(page_size)
+        )
+        result = await self.session.execute(statement)
+        models = result.scalars().all()
+        lessons = [await self._model_to_entity(model) for model in models]
+        return lessons, total
 
     async def update_status(
         self,

@@ -42,6 +42,15 @@ class LessonResult:
 
 
 @dataclass(frozen=True)
+class LessonListResult:
+    lessons: list["LessonResult"]
+    page: int
+    page_size: int
+    total: int
+    total_pages: int
+
+
+@dataclass(frozen=True)
 class OutlineSectionResult:
     title: str
     bullets: list[str]
