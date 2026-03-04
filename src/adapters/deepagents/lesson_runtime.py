@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
+from src.core.entities.lesson import LessonProject
 
 from deepagents import SubAgent, create_deep_agent
 from deepagents.backends import CompositeBackend, StateBackend
@@ -124,7 +125,7 @@ class DeepLessonAgentRuntime:
     async def execute(
         self,
         *,
-        lesson: Any,
+        lesson: LessonProject,
         command: DeepAgentRunCommand,
         intent: str,
     ) -> DeepLessonAgentRuntimeResult:

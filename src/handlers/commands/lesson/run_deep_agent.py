@@ -1,6 +1,7 @@
 from uuid import UUID
 from src.adapters.deepagents.lesson_runtime import DeepLessonAgentRuntime
 from src.adapters.db.uow import UnitOfWork
+from src.core.entities.lesson import LessonProject
 from src.core.services.lesson_planner import LessonPlannerService
 from src.handlers.contracts.lesson import DeepAgentRunCommand, DeepAgentRunResult
 from src.handlers.errors import NotFoundError
@@ -42,7 +43,7 @@ class LessonRunDeepAgentCommandHandler:
         if not instructor:
             raise NotFoundError("Instructor not found")
 
-        lesson = await self.db.lesson.get_for_instructor(lesson_id, instructor.id)
+        lesson: LessonProject = await self.db.lesson.get_for_instructor(lesson_id, instructor.id)
         if not lesson:
             raise NotFoundError("Lesson project not found")
 
