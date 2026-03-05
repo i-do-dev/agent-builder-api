@@ -253,19 +253,20 @@ class DeepLessonAgentRuntime:
 
         execution_agent = create_deep_agent(
             model=self.model,
-            tools=tools,
+            tools=[],
             subagents=subagents,
             skills=[
                 "Classify instructor request intent for lesson planning",
-                "Use only required tools for the requested intent",
+                "Delegate to the correct specialist for the requested intent",
                 "Prefer minimal, deterministic action set",
             ],
             checkpointer=True,
             backend=lambda runtime: CompositeBackend(default=StateBackend(runtime), routes={}),
             interrupt_on={},
             system_prompt=(
-                "You are the lesson deep-agent supervisor. Route to the best specialist and execute only the "
-                "minimum tool calls required to satisfy the instructor request."
+                "You are the lesson deep-agent supervisor. Do not execute tools directly. "
+                "Delegate to the best specialist subagent and use only the minimum required specialist actions "
+                "to satisfy the instructor request."
             ),
             name="lesson_deep_agent_executor",
         )
@@ -284,7 +285,7 @@ class DeepLessonAgentRuntime:
                             f"Default Subtopic: {subtopic_default}\n"
                             f"Question Count: {command.question_count}\n"
                             f"Cross-Disciplinary Focus: {cross_focus_default}\n"
-                            "Execute the relevant tools now."
+                            "Delegate execution to specialist subagents only."
                         ),
                     }
                 ]
